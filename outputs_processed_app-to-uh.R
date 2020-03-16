@@ -4,10 +4,12 @@ library(stringr)
 
 #MULTIFAMILIAR ----
 
-setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh") #Amanda
+# setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh") #Amanda
+setwd("~/codes") #Marcelo
 
 #Le csv
-outputs_multi <-read.csv("dados_ref_multi_02_14_12_01.csv")
+# outputs_multi <-read.csv("dados_ref_multi_02_14_12_01.csv")
+outputs_multi <-read.csv("dados_multi_03_12_18_00.csv")
 
 
 #Inclui coluna com descricao da uh, caso e cidade
@@ -44,10 +46,11 @@ write.csv(outputs_multi_uh, "outputs_multi_uh.csv")
 
 #UNIFAMILIAR ----
 
-setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh")  #Amanda
+# setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh")  #Amanda
 
 #Le csv
-outputs_uni <-read.csv("dados_uni_03_03_16_57.csv")
+# outputs_uni <-read.csv("dados_uni_03_03_16_57.csv")
+outputs_uni <-read.csv("dados_uni_03_13_16_14.csv")
 
 #Inclui coluna com descricao da uh, caso e cidade
 city <- data.frame(str_split_fixed(outputs_uni$epw, "_", 3))
