@@ -19,6 +19,7 @@
 *.idf
 *.epJSON
 
+*.png
 *.swo
 *.swp
 
@@ -31,6 +32,7 @@
 
 __pycache__/
 ref_experiment/
+ref_old/
 simulations_ref/
 GO/
 MA/

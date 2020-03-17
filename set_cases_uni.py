@@ -18,7 +18,7 @@ start_time = datetime.datetime.now()
 date = start_time.strftime("%d-%m-%y_%H-%M")
 
 # Globals
-FOLDER = 'uni1'  # 
+FOLDER = 'uni3'  # 
 FOLDERold = 'uni'  # 
 SIZE =  1250  # 
 SOBOL = False  # True  # 
@@ -27,7 +27,7 @@ GEN_SAMPLE = False  # True  #
 if not GEN_SAMPLE:
     SAMPLE_NAME = sorted(glob.glob('sample_'+FOLDERold+'_sobol_*'))[-1].split('.')[0]
 
-SAMPLE_PARTS = (1,3)  # AQUI VOCE DEVE MUDAR A PARTE (RAYNER = (1,7))
+SAMPLE_PARTS = (3,3)  # AQUI VOCE DEVE MUDAR A PARTE (RAYNER = (1,7))
 NUM_CLUSTERS = int(os.cpu_count()/3)  # AQUI EH DEFINIFO O NUMERO DE CORES (RAYNER = 5)
 NAME_STDRD = 'U'
 EXTENSION = 'idf'
@@ -43,8 +43,8 @@ OUTPUT_PROCESSED = 'outputs_'+FOLDER+'_'+date
 # To choose what to run in the code
 GEN_MODELS = False
 RUN_MODELS = False
-PROCESSESS_OUTPUT = False  # True
-RUN_ALL = True  # defines GEN_MODELS, RUN_MODELS, PROCESSESS_OUTPUT = True
+PROCESSESS_OUTPUT = True  # True
+RUN_ALL = False  # defines GEN_MODELS, RUN_MODELS, PROCESSESS_OUTPUT = True
 
 SLICES_FOLDER = 'slices/'
 SUB_SLICES_FOLDER = 'Uni/'

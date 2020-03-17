@@ -53,8 +53,8 @@ write.csv(outputs_multi_uh, "outputs_multi_80_uh.csv")
 # setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh")  #Amanda
 
 #Le csv
-# outputs_uni <-read.csv("dados_uni_03_17_14_36.csv")
-outputs_uni <-read.csv("dados_sg_uni_03_17_14_45.csv")
+outputs_uni <-read.csv("dados_uni_03_17_15_58.csv")
+# outputs_uni <-read.csv("dados_sg_uni_03_17_14_45.csv")
 # outputs_uni <-read.csv("dados_uni_03_13_16_14.csv")
 # outputs_uni <-read.csv("dados_sg_uni_ar_03_17_14_22.csv")
 # outputs_uni = read.csv('dados_sg_uni_80_03_17_14_23.csv')
@@ -72,6 +72,8 @@ uh_info$uh_name <- paste(outputs_uni$case,"_",city$estado,sep="")
 outputs_uni <- cbind(outputs_uni, uh_info[2], city[2])
 remove(uh_info)
 remove(city)
+
+length(unique(outputs_uni$case))
 
 #Inclui coluna de contato com o solo
 solo <- data.frame(str_split_fixed(outputs_uni$geometria, "_", 5))
@@ -96,7 +98,7 @@ mean(outputs_uni_uh$cgtr_heating[outputs_uni_uh$estado == 'GO'])
 mean(outputs_uni_uh$cgtr_heating_ref[outputs_uni_uh$estado == 'GO'])
 
 #Escreve csv
-# write.csv(outputs_uni_uh, "outputs_uni_uh.csv")
-write.csv(outputs_uni_uh, "outputs_sg_uni_uh.csv")
+write.csv(outputs_uni_uh, "outputs_uni_uh.csv")
+# write.csv(outputs_uni_uh, "outputs_sg_uni_uh.csv")
 # write.csv(outputs_uni_uh, "outputs_uni_uh_ar.csv")
 # write.csv(outputs_uni_uh, "outputs_uni_uh_80.csv")

@@ -23,19 +23,28 @@ df_uni3 = read.csv('uni3/outputs_uni3_12-03-20_15-52.csv')
 # df_multi5 = read.csv('outputs_multi5_03-02-20_16-05_final.csv')
 # df_multi6 = read.csv('outputs_multi6_03-02-20_16-04_final.csv')
 # df_multi7 = read.csv('outputs_multi7_03-02-20_16-03_final.csv')
-
+# 
+# df_multi$caseold = df_multi$case
+# 
 # df_multi2$case = df_multi2$case + 40*1
 # unique(df_multi2$case)
 # df_multi3$case = df_multi3$case + 40*2
 # unique(df_multi3$case)
 # df_multi4$case = df_multi4$case + 40*3
 # unique(df_multi4$case)
+# df_multi5$caseold = df_multi5$case
 # df_multi5$case = df_multi5$case + 40*4
 # unique(df_multi5$case)
 # df_multi6$case = df_multi6$case + 40*5
 # unique(df_multi6$case)
 # df_multi7$case = df_multi7$case + 40*6
 # unique(df_multi7$case)
+
+unique(df_uni1$case)
+df_uni2$case = df_uni2$case + 416*1
+unique(df_uni2$case)
+df_uni3$case = df_uni3$case + 416*2
+unique(df_uni3$case)
 
 df_ref_uni = read.csv('refs_uni/outputs_refs_uni_13-03-20_15-41.csv')
 # df_ref_multi = read.csv('refs_multi/outputs_refs_multi_07-02-20_09-34.csv')
@@ -47,8 +56,13 @@ df_uni = rbind(df_uni1,df_uni2,df_uni3)
 write.csv(df_uni, 'outputs_uni.csv', row.names = FALSE)
 ####  ----
 
-# df_uni = read.csv('outputs_uni.csv')
-df_uni = read.csv('outputs_')
+df_uni = read.csv('outputs_uni.csv')
+# df_uni = read.csv('sg_uni/outputs_sg_uni_17-03-20_15-02.csv')
+# df_uni = read.csv('sg_uni_ar/outputs_sg_uni_ar_17-03-20_14-10.csv')
+# df_uni = read.csv('sg_uni_80/outputs_sg_uni_80_13-03-20_13-37.csv')
+# df_multi = read.csv('sg_multi/outputs_sg_multi_12-03-20_13-47_final.csv')
+# df_multi = read.csv('sg_multi_ar/outputs_sg_multi_ar_13-03-20_13-39_final.csv')
+# df_multi = read.csv('sg_multi_80/outputs_sg_multi_80_13-03-20_13-39.csv')
 # df_multi = read.csv('outputs_multi.csv')
 df_ref_uni = read.csv('refs_uni/outputs_refs_uni_13-03-20_15-41.csv')
 # df_ref_multi = read.csv('refs_multi/outputs_refs_multi_07-02-20_09-34.csv')
@@ -58,6 +72,9 @@ df_ref_uni$azimute = substr(df_ref_uni$azimute,8,23)
 
 # df_ref_multi$geometria = substr(df_ref_multi$geometria,14,31)
 # df_ref_multi$azimute = substr(df_ref_multi$azimute,8,23)
+# levels(df_multi$epw) = levels(df_ref_multi$epw)
+# levels(df_multi$azimute) = levels(df_ref_multi$azimute)
+# levels(df_multi$geometria) = levels(df_ref_multi$geometria)
 
 # unique(df_ref_uni$geometria)
 # unique(df_uni$geometria)
@@ -66,6 +83,13 @@ df_ref_uni$azimute = substr(df_ref_uni$azimute,8,23)
 # df_ref = df_ref_multi
 df = df_uni
 df_ref = df_ref_uni
+
+df$epw = as.character(df$epw)
+df_ref$epw = as.character(df_ref$epw)
+
+max(df$cgtr_heating[grepl('TO',df$epw)])
+max(df$cgtr_heating[grepl('PR',df$epw)])
+mean(df$ph_inf[grepl('PR',df$epw)])
 
 df$ph_inf_ref = NA
 df$ph_sup_ref = NA
@@ -135,6 +159,8 @@ for(line in 1:nrow(df_ref)){
 b =  Sys.time()
 tempofor = b-a
 
+mean(df$cgtr_heating[grepl('PR', df$epw)])
+mean(df$cgtr_heating[grepl('GO', df$epw)])
 
 # a =  Sys.time()
 # 
@@ -152,6 +178,12 @@ tempofor = b-a
 agora = format(Sys.time(), "%m_%d_%H_%M")
 # write.csv(df, 'dados_uni.csv')
 write.csv(df, paste0('dados_uni_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_uni_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_uni_ar_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_uni_80_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_multi_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_multi_ar_',agora,'.csv'))
+# write.csv(df, paste0('dados_sg_multi_80_',agora,'.csv'))
 # write.csv(df, paste0('dados_multi_',agora,'.csv'))
 # write.csv(df, paste0('dados_ref_multi_',agora,'.csv'))
 

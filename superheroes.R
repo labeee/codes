@@ -62,7 +62,7 @@ df$cgtr_dif = df$cgtr_dif/df$area
 df$somb = sapply(df$sombreamento, strip, position = 3)  # strsplit(as.character(df$sombreamento),'_')[[1]][3]
 df$wwr = sapply(df$paf, strip, position = 3)  # strsplit(as.character(df$paf),'_')[[1]][3]
 
-df = subset(df, grepl('sfiso',df$componente))
+# df = subset(df, grepl('sfiso',df$componente))
 # df = subset(df, grepl('000',df$azimute))
 # df = subset(df, grepl('0_0_0',df$geometria))
 
@@ -115,7 +115,8 @@ for(slice in slices){
   )
   # dev.off()
 }
-  1#### ----
+
+#### ----
 
 ggplot(df, aes(df$cgtr_cooling_ref, df$cgtr_cooling)) +
   geom_point() +  #col(stat= 'identity') +
