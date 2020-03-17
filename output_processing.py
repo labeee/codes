@@ -127,9 +127,9 @@ def process_outputs(line, sup_lim, pattern):
 
 
                 try:
-                    df_temp['cgtr_heating'].append(df_ac[zn+' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)'][df_vn['sup_lim'] > 0].sum())
+                    df_temp['cgtr_heating'].append(df_ac[zn+' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)'][df_vn['inf_lim'] > 0].sum())
                 except:
-                    df_temp['cgtr_heating'].append(df_ac[zn+' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly) '][df_vn['sup_lim'] > 0].sum())
+                    df_temp['cgtr_heating'].append(df_ac[zn+' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly) '][df_vn['inf_lim'] > 0].sum())
                 try:
                     df_temp['cgtr_cooling'].append(df_ac[zn+' IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly) '][df_vn['sup_lim'] > 0].sum())
                 except:

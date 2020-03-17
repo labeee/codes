@@ -10,7 +10,8 @@ setwd("~/codes") #Marcelo
 #Le csv
 # outputs_multi <-read.csv("dados_ref_multi_02_14_12_01.csv")
 # outputs_multi <-read.csv("dados_multi_03_12_18_00.csv")
-outputs_multi <-read.csv("outputs_sg_multi_ar_13-03-20_13-39_final.csv")
+# outputs_multi <-read.csv("dados_sg_multi_ar_03_17_14_30.csv")
+outputs_multi <-read.csv("dados_sg_multi_80_03_17_14_34.csv")
 
 
 #Inclui coluna com descricao da uh, caso e cidade
@@ -41,7 +42,9 @@ outputs_multi_uh <- ddply(outputs_multi, .(uh_name), summarize,  ph_inf=mean(ph_
 teste <- subset(outputs_multi, (zone=="CO_CANTO_11_SALA" | zone=="CO_CANTO_11_DORM1" | zone=="CO_CANTO_11_DORM2") & case==0 & epw =="BRA_GO_Itumbiara.867740_INMET.epw" & floor=="CO")
 
 #Escreve csv
-write.csv(outputs_multi_uh, "outputs_multi_uh.csv")
+# write.csv(outputs_multi_uh, "outputs_multi_uh.csv")
+# write.csv(outputs_multi_uh, "outputs_multi_ar_uh.csv")
+write.csv(outputs_multi_uh, "outputs_multi_80_uh.csv")
 
 
 
@@ -50,8 +53,14 @@ write.csv(outputs_multi_uh, "outputs_multi_uh.csv")
 # setwd("D:/_NBR-15575/Banco_Dados/outputs_processed_uh")  #Amanda
 
 #Le csv
-# outputs_uni <-read.csv("dados_uni_03_03_16_57.csv")
-outputs_uni <-read.csv("dados_uni_03_13_16_14.csv")
+# outputs_uni <-read.csv("dados_uni_03_17_14_36.csv")
+outputs_uni <-read.csv("dados_sg_uni_03_17_14_45.csv")
+# outputs_uni <-read.csv("dados_uni_03_13_16_14.csv")
+# outputs_uni <-read.csv("dados_sg_uni_ar_03_17_14_22.csv")
+# outputs_uni = read.csv('dados_sg_uni_80_03_17_14_23.csv')
+
+mean(outputs_uni$cgtr_heating[grepl('PR',outputs_uni$epw)])
+mean(outputs_uni$cgtr_heating_ref)
 
 #Inclui coluna com descricao da uh, caso e cidade
 city <- data.frame(str_split_fixed(outputs_uni$epw, "_", 3))
@@ -81,5 +90,13 @@ outputs_uni_uh <- ddply(outputs_uni, .(uh_name), summarize,  ph_inf=mean(ph_inf)
 #subset teste - conferir b com as primeiras tres linhas do outputs_uni_uh - TALVEZ TENHA QUE MUDAR, DEPENDENDO DOS CASOS INCLUIDOS NO DF
 teste <- subset(outputs_uni, (zone=="SALA" | zone=="DORM1" | zone=="DORM2") & case==0 & epw =="BRA_GO_Itumbiara.867740_INMET.epw")
 
+mean(outputs_uni_uh$cgtr_heating[outputs_uni_uh$estado == 'PR'])
+mean(outputs_uni_uh$cgtr_heating_ref[outputs_uni_uh$estado == 'PR'])
+mean(outputs_uni_uh$cgtr_heating[outputs_uni_uh$estado == 'GO'])
+mean(outputs_uni_uh$cgtr_heating_ref[outputs_uni_uh$estado == 'GO'])
+
 #Escreve csv
-write.csv(outputs_uni_uh, "outputs_uni_uh.csv")
+# write.csv(outputs_uni_uh, "outputs_uni_uh.csv")
+write.csv(outputs_uni_uh, "outputs_sg_uni_uh.csv")
+# write.csv(outputs_uni_uh, "outputs_uni_uh_ar.csv")
+# write.csv(outputs_uni_uh, "outputs_uni_uh_80.csv")

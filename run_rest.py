@@ -3,12 +3,12 @@ import os
 import pandas as pd
 import output_processing
 
-FOLDER = 'multi1'
-OUTPUT_PROCESSED = 'outputs_multi1_03-02-20_13-45' # 'outputs_multi3_31-01-20_18-45'  # 'outputs_'+FOLDER
+FOLDER = 'sg_multi_ar'
+OUTPUT_PROCESSED = 'outputs_sg_multi_ar_13-03-20_13-39' # 'outputs_multi3_31-01-20_18-45'  # 'outputs_'+FOLDER
 SUP_LIMITS = 'sup_limits.json'
-NUM_CLUSTERS = int(os.cpu_count()/3)
-SIZE =  280  # 
-NAME_STDRD = 'M'
+NUM_CLUSTERS = 1  # int(os.cpu_count()/3)
+SIZE =  99  # 
+NAME_STDRD = 'sgmar'
 EXTENSION = 'idf'
 
 name_length = '{:0'+str(len(str(SIZE)))+'.0f}'
