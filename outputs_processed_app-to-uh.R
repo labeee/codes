@@ -9,7 +9,8 @@ setwd("~/codes") #Marcelo
 
 #Le csv
 # outputs_multi <-read.csv("dados_ref_multi_02_14_12_01.csv")
-outputs_multi <-read.csv("dados_multi_03_12_18_00.csv")
+# outputs_multi <-read.csv("dados_multi_03_12_18_00.csv")
+outputs_multi <-read.csv("outputs_sg_multi_ar_13-03-20_13-39_final.csv")
 
 
 #Inclui coluna com descricao da uh, caso e cidade
