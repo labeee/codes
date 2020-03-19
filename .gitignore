@@ -26,7 +26,8 @@
 *.zip
 *.7z
 
-.Rhistory
+*.Rhistory
+*.RData
 
 *.epw
 
