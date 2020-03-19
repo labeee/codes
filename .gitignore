@@ -27,7 +27,6 @@
 *.7z
 
 *.Rhistory
-*.RData
 
 *.epw
 
