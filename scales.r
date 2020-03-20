@@ -36,9 +36,14 @@ lapply(pkgs, library, character.only = T)
 
 # auxiliar functions ####
 # remove cases lower than minimum performance
-RmLowPHFT = function(df) filter(df, phft > phft_ref)
+RmLowPerf = function(df) df %>%
+  filter(
+    phft > phft_ref &
+      t_max < t_max_ref &
+        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & t_min < t_min_ref)
+  )
 # define cases higher than intermediary performance
-PickHighPHFT = function(df) filter(RmLowPHFT(df), phft > median(phft))
+PickHighPHFT = function(df) filter(RmLowPerf(df), phft > median(phft))
 # define superior performance cases based on absolute cgtt
 PickLowCgTT = function(df) filter(PickHighPHFT(df), cgtt < median(cgtt))
 # define superior performance cases based on cgtt's reduction
@@ -56,12 +61,12 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
   df$phft_ref = df$phft_ref*100
   unit = ifelse(unit == 'kwh', 3600000, 1000)
   if (dwel == 'uni') {
-    df$area = ifelse(df$geometria == 'P', area*1,
-                     ifelse(df$geometria == 'M', area*1.5, area*2))
+    df$area = ifelse(df$geometria == 'P', area,
+                     ifelse(df$geometria == 'M', 1.5*area, 2*area))
   } else {
     df$area = ifelse(df$geometria == 'P',
-                     ifelse(df$uh_expo == 'CANTO', area[1]*1, area[2]*1),
-                     ifelse(df$uh_expo == 'CANTO', area[1]*1.5, area[2]*1.5))
+                     ifelse(df$uh_expo == 'CANTO', area[1], area[2]),
+                     ifelse(df$uh_expo == 'CANTO', 1.5*area[1], 1.5*area[2]))
     df$floor = ifelse(df$floor == 'CO', 'Cob.',
                       ifelse(df$floor == 'TP0', 'Tipo', 'Térreo'))
     df$floor = factor(df$floor, levels = c('Cob.', 'Tipo', 'Térreo'))
@@ -79,7 +84,7 @@ CalcStats = function(lvl, df, weather) {
     summ_table = df %>%
       filter(estado == weather) %>%
       group_by(geometria, floor) %>%
-      RmLowPHFT() %>%
+      RmLowPerf() %>%
       summarize('min' = min(phft),
                 '5_percent' = quantile(phft, probs = c(0.05), names = F),
                 '1_quart' = quantile(phft, probs = c(0.25), names = F),
@@ -123,7 +128,7 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
   if (lvl == 'intermediario') {
     vl_df = df %>%
       group_by(estado, floor) %>%
-      RmLowPHFT() %>%
+      RmLowPerf() %>%
       summarise(median = median(phft))
     plot = plot + geom_histogram(aes(x = phft, colour = geometria),
                                  alpha = 0.5, fill = 'white') +
@@ -212,7 +217,7 @@ PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           axis.text.y = element_text(size = 14),
           strip.text.x = element_text(size = 17),
           strip.text.y = element_text(size = 17))
-
+  
   if (save_plot) {
     SavePlot(plot, paste0(dwel, '_', lvl,
                           ifelse(lvl == 'superior' & red, '_red_bp', '_bp')),
@@ -279,4 +284,3 @@ scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F)
 # plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
 # scales = mapply(CreateScales, scales, dfs_list, names(scales), red = T, save_plot = T,
 #                 33.8, 19, '/home/rodox/Desktop/', SIMPLIFY = F)
-
