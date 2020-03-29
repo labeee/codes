@@ -31,7 +31,7 @@
 # functions: initial upper camel case (e.g. HighPHFT, FixDF)
 
 # load libraries ####
-pkgs = c('dplyr', 'stringr', 'ggplot2')
+pkgs = c('dplyr', 'ggplot2', 'stringr')
 lapply(pkgs, library, character.only = T)
 
 # auxiliar functions ####
@@ -48,6 +48,24 @@ PickHighPHFT = function(df) filter(RmLowPerf(df), phft > median(phft))
 PickLowCgTT = function(df) filter(PickHighPHFT(df), cgtt < median(cgtt))
 # define superior performance cases based on cgtt's reduction
 PickHighRedCgTT = function(df) filter(PickHighPHFT(df), red_cgtt > median(red_cgtt))
+# create a data frame with levels vertical lines for histogram plots
+DefVertLinesDF = function(df, lvl, red) {
+  vl_df = df %>%
+    group_by(estado, floor)
+  if (lvl != 'superior') {
+    vl_df = vl_df %>%
+      RmLowPerf() %>%
+      summarise(min = min(phft), median = median(phft))
+  } else {
+    vl_df = PickHighPHFT(vl_df)
+    if (red) {
+      vl_df = summarise(vl_df, median = median(red_cgtt))
+    } else {
+      vl_df = summarise(vl_df, median = median(cgtt))
+    }
+  }
+  return(vl_df)
+}
 
 # data mining functions ####
 ShrinkGeom = function(df) {
@@ -80,10 +98,11 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
 
 # statistics and plot functions ####
 CalcStats = function(lvl, df, weather) {
+  summ_table = df %>%
+    filter(estado == weather) %>%
+    group_by(geometria, floor)
   if (lvl == 'intermediario') {
-    summ_table = df %>%
-      filter(estado == weather) %>%
-      group_by(geometria, floor) %>%
+    summ_table = summ_table %>%
       RmLowPerf() %>%
       summarize('min' = min(phft),
                 '5_percent' = quantile(phft, probs = c(0.05), names = F),
@@ -96,9 +115,7 @@ CalcStats = function(lvl, df, weather) {
       as.data.frame()
     summ_table[, 3:10] = round(summ_table[, 3:10], 1)
   } else {
-    summ_table = df %>%
-      filter(estado == weather) %>%
-      group_by(geometria, floor) %>%
+    summ_table = summ_table %>%
       PickHighPHFT() %>%
       summarize('min' = min(cgtt),
                 '5_percent' = quantile(cgtt, probs = c(0.05), names = F),
@@ -126,31 +143,32 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
   }
   
   if (lvl == 'intermediario') {
-    vl_df = df %>%
-      group_by(estado, floor) %>%
-      RmLowPerf() %>%
-      summarise(median = median(phft))
+    vl_df = DefVertLinesDF(df, lvl)
     plot = plot + geom_histogram(aes(x = phft, colour = geometria),
-                                 alpha = 0.5, fill = 'white') +
+                                 fill = 'white') +
+      geom_vline(data = vl_df, aes(xintercept = min), linetype = 'dashed') +
       geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
+      geom_text(data = vl_df, aes(x = min, y = Inf, vjust = 2,
+                                  label = '       M->', fontface = 'bold')) +
+      geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2,
+                                  label = '     I->', fontface = 'bold')) +
       labs(x = 'PHFT (%)')
   } else {
-    vl_df = df %>%
-      group_by(estado, floor) %>%
-      PickHighPHFT()
+    vl_df = DefVertLinesDF(df, lvl, red)
     if (red) {
-      vl_df = summarise(vl_df, median = median(red_cgtt))
       plot = plot + geom_histogram(aes(x = red_cgtt, colour = geometria),
                                    alpha = 0.5, fill = 'white') +
-        geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
-        labs(x = 'Red. CgTT (kWh/m²)')
+        labs(x = 'Red. CgTT (kWh/m²)') +
+        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
+                                    label = '       S->'))
     } else {
-      vl_df = summarise(vl_df, median = median(cgtt))
       plot = plot + geom_histogram(aes(x = cgtt, colour = geometria),
                                    alpha = 0.5, fill = 'white') +
-        geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
-        labs(x = 'CgTT (kWh/m²)')
+        labs(x = 'CgTT (kWh/m²)') +
+        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
+                                    label = '       <-S'))
     }
+    plot = plot + geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed')
   }
   
   plot = plot +
@@ -168,7 +186,7 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           axis.text.y = element_text(size = 13),
           strip.text.x = element_text(size = 17),
           strip.text.y = element_text(size = 17))
-
+  
   if (save_plot) {
     SavePlot(plot, paste0(dwel, '_', lvl,
                           ifelse(lvl == 'superior' & red, '_red_hist', '_hist')),
@@ -280,7 +298,7 @@ scales = vector('list', length = length(dfs_list))
 names(scales) = names(dfs_list)
 scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F)
 
-# to save the plots aditional arguments should be used in scales(), as follow
-# plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
+# to save the plots aditional arguments should be used in scales(), as follow:
+  # plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
 # scales = mapply(CreateScales, scales, dfs_list, names(scales), red = T, save_plot = T,
-#                 33.8, 19, '/home/rodox/Desktop/', SIMPLIFY = F)
+#                 33.8, 19, '~/00.git/01.nbr_15575/00.plots/', SIMPLIFY = F)
