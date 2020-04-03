@@ -31,6 +31,7 @@ FixDF = function(df, unit = 'kwh') {
 
 # statistics and plot functions ####
 CreateCountDF = function(df, lvl, red) {
+  df = group_by(df, geometria, estado, floor)
   if (lvl == 'minimo') {
     df = RmLowPerf(df)
   } else if (lvl == 'intermediario') {
@@ -42,9 +43,7 @@ CreateCountDF = function(df, lvl, red) {
       df = PickLowCgTT(df)
     }
   }
-  df = df %>%
-    group_by(geometria, estado, floor) %>%
-    summarize('count' = length(geometria))
+  df = summarize(df, 'count' = length(geometria))
   
   return(df)
 }

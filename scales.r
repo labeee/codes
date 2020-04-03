@@ -58,13 +58,38 @@ DefVertLinesDF = function(df, lvl, red) {
       summarise(min = min(phft), median = median(phft))
   } else {
     vl_df = PickHighPHFT(vl_df)
-    if (red) {
-      vl_df = summarise(vl_df, median = median(red_cgtt))
-    } else {
+    if (is.null(red)) {
       vl_df = summarise(vl_df, median = median(cgtt))
+    } else {
+      if (red == 'abs') {
+        vl_df = summarise(vl_df, median = median(red_cgtt))
+      } else {
+        vl_df = summarise(vl_df, median = median(red_rel_cgtt))
+      }
     }
   }
   return(vl_df)
+}
+
+NamePlot = function(dwel, lvl, red) {
+  plot_name = paste0(dwel, '_', lvl,
+                     ifelse(lvl != 'superior', '_',
+                            ifelse(is.null(red), '_',
+                                   paste0('_red', ifelse(red == 'abs', '_abs_',
+                                                         '_rel_')))))
+                     
+  return(plot_name)
+}
+
+NameTitle = function(dwel, lvl, red) {
+  title = paste0(str_to_title(dwel), '. - Nível ', str_to_title(lvl),
+                 ifelse(lvl == 'intermediario', '',
+                        ifelse(is.null(red), '',
+                               paste0(' (Redução',
+                                      ifelse(red == 'abs', ' Absoluta)',
+                                             ' Relativa)')))))
+  
+  return(title)
 }
 
 # data mining functions ####
@@ -92,6 +117,7 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
   df$cgtt = (df$cgtr_cooling + df$cgtr_heating)/(df$area*unit)
   df$cgtt_ref = (df$cgtr_cooling_ref + df$cgtr_heating_ref)/(df$area*unit)
   df$red_cgtt = df$cgtt_ref - df$cgtt
+  df$red_rel_cgtt = df$red_cgtt/df$cgtt_ref*100
   df$estado = factor(df$estado, levels = c('RS', 'SC', 'PR', 'RJ', 'MG', 'GO', 'TO', 'MA'))
   return(df)
 }
@@ -155,26 +181,32 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
       labs(x = 'PHFT (%)')
   } else {
     vl_df = DefVertLinesDF(df, lvl, red)
-    if (red) {
-      plot = plot + geom_histogram(aes(x = red_cgtt, colour = geometria),
-                                   alpha = 0.5, fill = 'white') +
-        labs(x = 'Red. CgTT (kWh/m²)') +
-        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
-                                    label = '       S->'))
-    } else {
+    if (is.null(red)) {
       plot = plot + geom_histogram(aes(x = cgtt, colour = geometria),
                                    alpha = 0.5, fill = 'white') +
         labs(x = 'CgTT (kWh/m²)') +
         geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
                                     label = '       <-S'))
+    } else {
+      if (red == 'abs') {
+        plot = plot + geom_histogram(aes(x = red_cgtt, colour = geometria),
+                                     alpha = 0.5, fill = 'white') +
+          labs(x = 'Red. Abs. CgTT (kWh/m²)')
+      } else {
+        plot = plot + geom_histogram(aes(x = red_rel_cgtt, colour = geometria),
+                                     alpha = 0.5, fill = 'white') +
+          labs(x = 'Red. Rel. CgTT (%)')
+      }
+      plot = plot +
+        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
+                                    label = '       S->'))
     }
     plot = plot + geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed')
   }
   
+  title_name = NameTitle(dwel, lvl, red)
   plot = plot +
-    labs(title = paste0(str_to_title(dwel), '. - Nível ',
-                       ifelse(lvl == 'intermediario', 'Intermediário', 'Superior'),
-                       ' - Histograma'),
+    labs(title = paste0(title_name, ' - Histograma'),
          y = 'Contagem', colour = 'Área:') +
     theme(plot.title = element_text(size = 19, face = 'bold', hjust = 0.5),
           legend.text = element_text(size = 11),
@@ -188,9 +220,8 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           strip.text.y = element_text(size = 17))
   
   if (save_plot) {
-    SavePlot(plot, paste0(dwel, '_', lvl,
-                          ifelse(lvl == 'superior' & red, '_red_hist', '_hist')),
-             lx, ly, output_dir)
+    plot_name = NamePlot(dwel, lvl, red)
+    SavePlot(plot, paste0(plot_name, 'hist'), lx, ly, output_dir)
   } else {
     return(plot)
   }
@@ -198,18 +229,24 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
 
 PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
   if (lvl == 'intermediario') {
-    plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
+    plot = ggplot(data = RmLowPerf(group_by(df, estado, floor)),
                   aes(x = geometria, y = phft, fill = geometria)) +
       labs(y = 'PHFT (%)')
   } else {
-    if (red) {
-      plot = ggplot(data = PickHighRedCgTT(group_by(df, estado, floor)),
-                    aes(x = geometria, y = red_cgtt, fill = geometria)) +
-        labs(y = 'Red. CgTT (kWh/m²)')
-    } else {
-      plot = ggplot(data = PickLowCgTT(group_by(df, estado, floor)),
+    if (is.null(red)) {
+      plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
                     aes(x = geometria, y = cgtt, fill = geometria)) +
         labs(y = 'CgTT (kWh/m²)')
+    } else {
+      if (red == 'abs') {
+        plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
+                      aes(x = geometria, y = red_cgtt, fill = geometria)) +
+          labs(y = 'Red. Abs. CgTT (kWh/m²)')
+      } else {
+        plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
+                      aes(x = geometria, y = red_rel_cgtt, fill = geometria)) +
+          labs(y = 'Red. Rel. CgTT (%)')
+      }
     }
   }
   
@@ -219,11 +256,10 @@ PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
     plot = plot + facet_grid(floor ~ estado)
   }
   
+  title_name = NameTitle(dwel, lvl, red)
   plot = plot +
     geom_boxplot() +
-    labs(title = paste0(str_to_title(dwel), '. - Nível ',
-                       ifelse(lvl == 'intermediario', 'Intermediário', 'Superior'),
-                       ' - Box Plot'),
+    labs(title = paste0(title_name, ' - Box Plot'),
          fill = 'Área:') +
     theme(plot.title = element_text(size = 19, face = 'bold', hjust = 0.5),
           legend.text = element_text(size = 11),
@@ -237,9 +273,8 @@ PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           strip.text.y = element_text(size = 17))
   
   if (save_plot) {
-    SavePlot(plot, paste0(dwel, '_', lvl,
-                          ifelse(lvl == 'superior' & red, '_red_bp', '_bp')),
-             lx, ly, output_dir)
+    plot_name = NamePlot(dwel, lvl, red)
+    SavePlot(plot, paste0(plot_name, 'bp'), lx, ly, output_dir)
   } else {
     return(plot)
   }
@@ -253,8 +288,8 @@ SavePlot = function(plot, plot_name, lx, ly, output_dir) {
 }
 
 # main functions ####
-CreateScales = function(item, df, dwel, red = T, save_plot = F,
-                        lx = 33.8, ly = 19, output_dir = '') {
+CreateScales = function(item, df, dwel, red, save_plot,
+                        lx, ly, output_dir = '') {
   names = c(levels(df[, 'estado']), 'PLOTS')
   item = vector('list', length = length(names))
   item = lapply(names, DefPerformance, df, dwel, red,
@@ -296,9 +331,11 @@ dfs_list = mapply(FixDF, dfs_list, names(dfs_list),
                   SIMPLIFY = F)
 scales = vector('list', length = length(dfs_list))
 names(scales) = names(dfs_list)
-scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F)
+scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
+                MoreArgs = list(red = NULL, save_plot = F))
 
 # to save the plots aditional arguments should be used in scales(), as follow:
   # plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
-# scales = mapply(CreateScales, scales, dfs_list, names(scales), red = T, save_plot = T,
-#                 33.8, 19, '~/00.git/01.nbr_15575/00.plots/', SIMPLIFY = F)
+# scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
+#                 MoreArgs = list(red = 'rel, save_plot = T, lx = 33.8, ly = 19,
+#                                 output_dir = '~/00.git/01.nbr_15575/00.plots/'))
