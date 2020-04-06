@@ -46,8 +46,10 @@ RmLowPerf = function(df) df %>%
 PickHighPHFT = function(df) filter(RmLowPerf(df), phft > median(phft))
 # define superior performance cases based on absolute cgtt
 PickLowCgTT = function(df) filter(PickHighPHFT(df), cgtt < median(cgtt))
-# define superior performance cases based on cgtt's reduction
-PickHighRedCgTT = function(df) filter(PickHighPHFT(df), red_cgtt > median(red_cgtt))
+# define superior performance cases based on cgtt's absolute reduction
+PickHighRedAbsCgTT = function(df) filter(PickHighPHFT(df), red_cgtt > median(red_cgtt))
+# define superior performance cases based on cgtt's relative reduction
+PickHighRedRelCgTT = function(df) filter(PickHighPHFT(df), red_rel_cgtt > median(red_rel_cgtt))
 # create a data frame with levels vertical lines for histogram plots
 DefVertLinesDF = function(df, lvl, red) {
   vl_df = df %>%
@@ -143,14 +145,18 @@ CalcStats = function(lvl, df, weather) {
   } else {
     summ_table = summ_table %>%
       PickHighPHFT() %>%
-      summarize('min' = min(cgtt),
-                '5_percent' = quantile(cgtt, probs = c(0.05), names = F),
-                '1_quart' = quantile(cgtt, probs = c(0.25), names = F),
-                'mean' = mean(cgtt),
-                'median' = median(cgtt),
-                '3_quart' = quantile(cgtt, probs = c(0.75), names = F),
-                '95_percent' = quantile(cgtt, probs = c(0.95), names = F),
-                'max' = max(cgtt)) %>%
+      summarize('min_cgtt' = min(cgtt),
+                'min_red_abs' = min(red_cgtt),
+                'min_red_rel' = min(red_rel_cgtt),
+                'mean_cgtt' = mean(cgtt),
+                'mean_red_abs' = mean(red_cgtt),
+                'mean_red_rel' = mean(red_rel_cgtt),
+                'median_cgtt' = median(cgtt),
+                'median_red_abs' = median(red_cgtt),
+                'median_red_rel' = median(red_rel_cgtt),
+                'max_cgtt' = max(cgtt),
+                'max_red_abs' = max(red_cgtt),
+                'max_red_rel' = max(red_rel_cgtt)) %>%
       as.data.frame()
     summ_table[, 3:10] = round(summ_table[, 3:10], 1)
   }
