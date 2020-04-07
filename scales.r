@@ -343,5 +343,5 @@ scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
 # to save the plots aditional arguments should be used in scales(), as follow:
   # plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
 # scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
-#                 MoreArgs = list(red = 'rel, save_plot = T, lx = 33.8, ly = 19,
+#                 MoreArgs = list(red = NULL, save_plot = T, lx = 33.8, ly = 19,
 #                                 output_dir = '~/00.git/01.nbr_15575/00.plots/'))

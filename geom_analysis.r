@@ -28,6 +28,9 @@ FixDF = function(df, unit = 'kwh') {
   df$red_cgtt = df$cgtt - df$cgtt_ref
   df$red_rel_cgtt = df$red_cgtt/df$cgtt_ref*100
   df$estado = factor(df$estado, levels = c('RS', 'SC', 'PR', 'RJ', 'MG', 'GO', 'TO', 'MA'))
+  df$floor = ifelse(df$floor == 'CO', 'Cob.',
+                    ifelse(df$floor == 'TP0', 'Tipo', 'Térreo'))
+  df$floor = factor(df$floor, levels = c('Cob.', 'Tipo', 'Térreo'))
   
   return(df)
 }
