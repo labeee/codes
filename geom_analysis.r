@@ -10,14 +10,43 @@ RmLowPerf = function(df) df %>%
       t_max < t_max_ref &
       !((estado == 'PR' | estado == 'RS' | estado == 'SC') & t_min < t_min_ref)
   )
+# remove cases whose cgtt is higher than cgtt reference
+RmHighCgTT = function(df) filter(RmLowPerf(df), cgtt < cgtt_ref)
 # define cases higher than intermediary performance
-PickHighPHFT = function(df) filter(RmLowPerf(df), phft > median(phft))
-# define superior performance cases based on absolute cgtt
-PickLowCgTT = function(df) filter(PickHighPHFT(df), cgtt < median(cgtt))
-# define superior performance cases based on cgtt's absolute reduction
-PickHighARCgTT = function(df) filter(PickHighPHFT(df), red_cgtt > median(red_cgtt))
-# define superior performance cases based on cgtt's relative reduction
-PickHighRRCgTT = function(df) filter(PickHighPHFT(df), red_rel_cgtt > median(red_rel_cgtt))
+FiltPHFT = function(df, inc) {
+  df = RmHighCgTT(df)
+  if (inc == F) {
+    df = filter(df, phft > median(phft))
+  } else if(inc == 'abs') {
+    df = filter(df, inc_phft > median(inc_phft))
+  } else {
+    df = filter(RmHighCgTT(df), inc_rel_phft > median(inc_rel_phft))
+  }
+  return(df)
+}
+# define superior performance cases based on cgtt
+FiltCgTT = function(df, inc, red) {
+  df = FiltPHFT(df, inc)
+  if (red == F) {
+    df = filter(df, cgtt < median(cgtt))
+  } else if (red == 'abs') {
+    df = filter(df, red_cgtt > median(red_cgtt))
+  } else {
+    df = filter(df, red_rel_cgtt > median(red_rel_cgtt))
+  }
+  return(df)
+}
+# name plot titles
+NameTitle = function(dwel, lvl, inc, red) {
+  title = paste0(str_to_title(dwel), '. - Nível ', str_to_title(lvl),
+                 ifelse(lvl == 'intermediario',
+                        ifelse(inc == F, '', paste0(' (Aumento ', str_to_title(inc), '.)')),
+                        paste0(ifelse(red == F, '',
+                                      paste0(' (Redução ', str_to_title(red), '.)')),
+                               ifelse(inc == F,
+                                      '', paste0(' [PHFT ', str_to_title(inc), '.]')))))
+  return(title)
+}
 
 # data mining functions ####
 FixDF = function(df, unit = 'kwh') {
@@ -27,6 +56,10 @@ FixDF = function(df, unit = 'kwh') {
   df$cgtt_ref = (df$cgtr_cooling_ref + df$cgtr_heating_ref)/3600000
   df$red_cgtt = df$cgtt - df$cgtt_ref
   df$red_rel_cgtt = df$red_cgtt/df$cgtt_ref*100
+  df$phft = df$phft*100
+  df$phft_ref = df$phft_ref*100
+  df$inc_phft = df$phft - df$phft_ref
+  df$inc_rel_phft = df$inc_phft/df$phft_ref*100
   df$estado = factor(df$estado, levels = c('RS', 'SC', 'PR', 'RJ', 'MG', 'GO', 'TO', 'MA'))
   df$floor = ifelse(df$floor == 'CO', 'Cob.',
                     ifelse(df$floor == 'TP0', 'Tipo', 'Térreo'))
@@ -36,41 +69,31 @@ FixDF = function(df, unit = 'kwh') {
 }
 
 # statistics and plot functions ####
-CreateCountDF = function(df, lvl, red = FALSE) {
+CreateCountDF = function(df, lvl, inc = F, red = F) {
   df = group_by(df, geometria, estado, floor)
   if (lvl == 'minimo') {
     df = RmLowPerf(df)
   } else if (lvl == 'intermediario') {
-    df = PickHighPHFT(df)
+    df = FiltPHFT(df, inc)
   } else {
-    if (red == FALSE) {
-      df = PickLowCgTT(df)
-    } else {
-      if (red == 'abs') {
-        df = PickHighARCgTT(df)
-      } else {
-        df = PickHighRRCgTT(df)
-      }
-    }
+    df = FiltCgTT(df, inc, red)
   }
   df = summarize(df, 'count' = length(geometria))
   
   return(df)
 }
 
-PlotCount = function(df, dwel, lvl, red = FALSE, output_dir) {
+# plot functions ####
+PlotCount = function(df, dwel, lvl, inc = F, red = F, output_dir) {
   png(filename = paste0(output_dir, dwel, '_', lvl,
-                        ifelse(red == FALSE, '', paste0('_red_', red)), '_count.png'),
+                        ifelse(inc == F, '', paste0('_inc_', inc)),
+                        ifelse(red == F, '', paste0('_red_', red)), '_count.png'),
       width = 33.8, height = 19, units = 'cm', res = 500)
   plot(
     ggplot(df, aes(x = geometria, y = count, fill = geometria)) +
       geom_bar(stat = 'identity') +
       facet_grid(floor ~ estado) +
-      labs(title = paste0(str_to_title(dwel), '. - Nível ',
-                          ifelse(lvl == 'minimo', 'Mínimo',
-                                 ifelse(lvl == 'intermediario', 'Intermediário', 'Superior')),
-                          ifelse(red == FALSE, '',
-                                 paste0(' (Red. ', str_to_title(red), '.)')),
+      labs(title = paste0(NameTitle(dwel, lvl, inc, red),
                           ' - Contagem'),
            fill = 'Geometria:') +
       theme(plot.title = element_text(size = 19, face = 'bold', hjust = 0.5),
@@ -84,7 +107,6 @@ PlotCount = function(df, dwel, lvl, red = FALSE, output_dir) {
             strip.text.x = element_text(size = 17),
             strip.text.y = element_text(size = 17))
   )
-  
   dev.off()
 }
 
@@ -95,14 +117,23 @@ dfs_list = lapply(dfs_list, FixDF)
 # application plots ####
 for (dwel in c('uni', 'multi')) {
   for (lvl in c('minimo', 'intermediario', 'superior')) {
-    if (lvl == 'superior') {
-      for (red in c(FALSE, 'abs', 'rel'))  {
-        PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, red),
-                  dwel, lvl, red, output_dir = '~/00.git/01.nbr_15575/00.plots/')
-      }
-    } else {
+    if (lvl == 'minimo') {
       PlotCount(CreateCountDF(dfs_list[[dwel]], lvl),
                 dwel, lvl, output_dir = '~/00.git/01.nbr_15575/00.plots/')
+    } else {
+      if (lvl == 'intermediario') {
+        for (inc in c(F, 'abs', 'rel')) {
+          PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc),
+                    dwel, lvl, inc, output_dir = '~/00.git/01.nbr_15575/00.plots/')
+        }
+      } else {
+        for (inc in c(F, 'abs', 'rel')) {
+          for (red in c(F, 'abs', 'rel'))  {
+            PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc, red),
+                      dwel, lvl, inc, red, output_dir = '~/00.git/01.nbr_15575/00.plots/')
+          }
+        }
+      }
     }
   }
 }

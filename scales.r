@@ -42,25 +42,40 @@ RmLowPerf = function(df) df %>%
       t_max < t_max_ref &
         !((estado == 'PR' | estado == 'RS' | estado == 'SC') & t_min < t_min_ref)
   )
+# remove cases whose cgtt is higher than cgtt reference
+RmHighCgTT = function(df) filter(RmLowPerf(df), cgtt < cgtt_ref)
 # define cases higher than intermediary performance
-PickHighPHFT = function(df) filter(RmLowPerf(df), phft > median(phft))
-# define superior performance cases based on absolute cgtt
-PickLowCgTT = function(df) filter(PickHighPHFT(df), cgtt < median(cgtt))
-# define superior performance cases based on cgtt's absolute reduction
-PickHighRedAbsCgTT = function(df) filter(PickHighPHFT(df), red_cgtt > median(red_cgtt))
-# define superior performance cases based on cgtt's relative reduction
-PickHighRedRelCgTT = function(df) filter(PickHighPHFT(df), red_rel_cgtt > median(red_rel_cgtt))
+FiltPHFT = function(df, inc) {
+  df = RmHighCgTT(df)
+  if (inc == F) {
+    df = filter(df, phft > median(phft))
+  } else if(inc == 'abs') {
+    df = filter(df, inc_phft > median(inc_phft))
+  } else {
+    df = filter(RmHighCgTT(df), inc_rel_phft > median(inc_rel_phft))
+  }
+  return(df)
+}
 # create a data frame with levels vertical lines for histogram plots
-DefVertLinesDF = function(df, lvl, red) {
+DefVertLinesDF = function(df, lvl, inc, red) {
   vl_df = df %>%
     group_by(estado, floor)
-  if (lvl != 'superior') {
-    vl_df = vl_df %>%
-      RmLowPerf() %>%
-      summarise(min = min(phft), median = median(phft))
+  if (lvl == 'intermediario') {
+    if (inc == F) {
+      vl_df = vl_df %>%
+        RmLowPerf() %>%
+        summarise(min = min(phft), median = median(phft))
+    } else {
+      vl_df = RmHighCgTT(vl_df)
+      if (inc == 'abs') {
+        vl_df = summarise(vl_df, median = median(inc_phft))
+      } else {
+        vl_df = summarise(vl_df, median = median(inc_rel_phft))
+      }
+    }
   } else {
-    vl_df = PickHighPHFT(vl_df)
-    if (is.null(red)) {
+    vl_df = FiltPHFT(vl_df, inc)
+    if (red == F) {
       vl_df = summarise(vl_df, median = median(cgtt))
     } else {
       if (red == 'abs') {
@@ -72,25 +87,23 @@ DefVertLinesDF = function(df, lvl, red) {
   }
   return(vl_df)
 }
-
-NamePlot = function(dwel, lvl, red) {
+# name plot files
+NamePlot = function(dwel, lvl, inc, red) {
   plot_name = paste0(dwel, '_', lvl,
-                     ifelse(lvl != 'superior', '_',
-                            ifelse(is.null(red), '_',
-                                   paste0('_red', ifelse(red == 'abs', '_abs_',
-                                                         '_rel_')))))
-                     
+                     ifelse(inc == F, '', paste0('_inc_', inc)),
+                     ifelse(lvl == 'intermediario', '', ifelse(red == F, '',
+                                                               paste0('_red_', red))))
   return(plot_name)
 }
-
-NameTitle = function(dwel, lvl, red) {
-  title = paste0(str_to_title(dwel), '. - Nível ', str_to_title(lvl),
-                 ifelse(lvl == 'intermediario', '',
-                        ifelse(is.null(red), '',
-                               paste0(' (Redução',
-                                      ifelse(red == 'abs', ' Absoluta)',
-                                             ' Relativa)')))))
-  
+# name plot titles
+NameTitle = function(dwel, lvl, inc, red) {
+ title = paste0(str_to_title(dwel), '. - Nível ', str_to_title(lvl),
+                 ifelse(lvl == 'intermediario',
+                        ifelse(inc == F, '', paste0(' (Aumento ', str_to_title(inc), '.)')),
+                        paste0(ifelse(red == F, '',
+                               paste0(' (Redução ', str_to_title(red), '.)')),
+                        ifelse(inc == F,
+                               '', paste0(' [PHFT ', str_to_title(inc), '.]')))))
   return(title)
 }
 
@@ -102,9 +115,11 @@ ShrinkGeom = function(df) {
 }
 
 FixDF = function(df, dwel, area, unit = 'kwh') {
+  unit = ifelse(unit == 'kwh', 3600000, 1000)
   df$phft = df$phft*100
   df$phft_ref = df$phft_ref*100
-  unit = ifelse(unit == 'kwh', 3600000, 1000)
+  df$inc_phft = df$phft - df$phft_ref
+  df$inc_rel_phft = df$inc_phft/df$phft_ref*100
   if (dwel == 'uni') {
     df$area = ifelse(df$geometria == 'P', area,
                      ifelse(df$geometria == 'M', 1.5*area, 2*area))
@@ -125,26 +140,30 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
 }
 
 # statistics and plot functions ####
-CalcStats = function(lvl, df, weather) {
+CalcStats = function(lvl, df, inc, weather) {
   summ_table = df %>%
     filter(estado == weather) %>%
     group_by(geometria, floor)
   if (lvl == 'intermediario') {
     summ_table = summ_table %>%
       RmLowPerf() %>%
-      summarize('min' = min(phft),
-                '5_percent' = quantile(phft, probs = c(0.05), names = F),
-                '1_quart' = quantile(phft, probs = c(0.25), names = F),
-                'mean' = mean(phft),
-                'median' = median(phft),
-                '3_quart' = quantile(phft, probs = c(0.75), names = F),
-                '95_percent' = quantile(phft, probs = c(0.95), names = F),
-                'max' = max(phft)) %>%
+      summarize('min_phft' = min(phft),
+                'min_inc_phft' = min(inc_phft),
+                'min_inc_rel_phft' = min(inc_rel_phft),
+                'mean_phft' = mean(phft),
+                'mean_inc_phft' = mean(inc_phft),
+                'mean_inc_rel_phft' = mean(inc_rel_phft),
+                'median_phft' = median(phft),
+                'median_inc_phft' = median(inc_phft),
+                'median_inc_rel_phft' = median(inc_rel_phft),
+                'max_phft' = max(phft),
+                'max_inc_phft' = max(inc_phft),
+                'max_inc_rel_phft' = max(inc_rel_phft)) %>%
       as.data.frame()
     summ_table[, 3:10] = round(summ_table[, 3:10], 1)
   } else {
     summ_table = summ_table %>%
-      PickHighPHFT() %>%
+      FiltPHFT(inc) %>%
       summarize('min_cgtt' = min(cgtt),
                 'min_red_abs' = min(red_cgtt),
                 'min_red_rel' = min(red_rel_cgtt),
@@ -163,7 +182,7 @@ CalcStats = function(lvl, df, weather) {
   return(summ_table)
 }
 
-PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
+PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   plot = ggplot(data = df)
   
   if (dwel == 'uni') {
@@ -175,19 +194,36 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
   }
   
   if (lvl == 'intermediario') {
-    vl_df = DefVertLinesDF(df, lvl)
-    plot = plot + geom_histogram(aes(x = phft, colour = geometria),
-                                 fill = 'white') +
-      geom_vline(data = vl_df, aes(xintercept = min), linetype = 'dashed') +
+    vl_df = DefVertLinesDF(df, lvl, inc)
+    if (inc == F) {
+      plot = plot + geom_histogram(aes(x = phft, colour = geometria),
+                                   fill = 'white') +
+        geom_vline(data = vl_df, aes(xintercept = min), linetype = 'dashed') +
+        geom_text(data = vl_df, aes(x = min, y = Inf, vjust = 2,
+                                    label = '       M->', fontface = 'bold')) +
+        labs(x = 'PHFT (%)')
+    } else {
+      if (inc == 'abs') {
+        plot = plot + geom_histogram(aes(x = inc_phft, colour = geometria),
+                                     fill = 'white') +
+          labs(x = 'Red. Abs. PHFT (%)')
+      } else {
+        plot = plot + geom_histogram(aes(x = inc_rel_phft, colour = geometria),
+                                     fill = 'white') +
+          labs(x = 'Red. Rel. PHFT (%)')
+      }
+      plot = plot +
+        geom_vline(xintercept = 0, linetype = 'dashed') +
+        geom_text(data = vl_df, aes(x = 0, y = Inf, vjust = 2,
+                                    label = '       M->', fontface = 'bold'))
+    }
+    plot = plot +
       geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
-      geom_text(data = vl_df, aes(x = min, y = Inf, vjust = 2,
-                                  label = '       M->', fontface = 'bold')) +
       geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2,
-                                  label = '     I->', fontface = 'bold')) +
-      labs(x = 'PHFT (%)')
+                                  label = '     I->', fontface = 'bold'))
   } else {
-    vl_df = DefVertLinesDF(df, lvl, red)
-    if (is.null(red)) {
+    vl_df = DefVertLinesDF(df, lvl, inc, red)
+    if (red == F) {
       plot = plot + geom_histogram(aes(x = cgtt, colour = geometria),
                                    alpha = 0.5, fill = 'white') +
         labs(x = 'CgTT (kWh/m²)') +
@@ -210,7 +246,7 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
     plot = plot + geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed')
   }
   
-  title_name = NameTitle(dwel, lvl, red)
+  title_name = NameTitle(dwel, lvl, inc, red)
   plot = plot +
     labs(title = paste0(title_name, ' - Histograma'),
          y = 'Contagem', colour = 'Área:') +
@@ -226,31 +262,43 @@ PlotHist = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           strip.text.y = element_text(size = 17))
   
   if (save_plot) {
-    plot_name = NamePlot(dwel, lvl, red)
-    SavePlot(plot, paste0(plot_name, 'hist'), lx, ly, output_dir)
+    plot_name = NamePlot(dwel, lvl, inc, red)
+    SavePlot(plot, paste0(plot_name, '_hist'), lx, ly, output_dir)
   } else {
     return(plot)
   }
 }
 
-PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
+PlotBP = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   if (lvl == 'intermediario') {
-    plot = ggplot(data = RmLowPerf(group_by(df, estado, floor)),
-                  aes(x = geometria, y = phft, fill = geometria)) +
-      labs(y = 'PHFT (%)')
+    plot = ggplot(data = RmLowPerf(group_by(df, estado, floor)))
+    if (inc == F) {
+      plot = plot +
+        geom_boxplot(aes(x = geometria, y = phft, fill = geometria)) +
+        labs(y = 'PHFT (%)')
+    } else if (inc == 'abs') {
+      plot = plot +
+        geom_boxplot(aes(x = geometria, y = inc_phft, fill = geometria)) +
+        labs(y = 'Aumento Abs. PHFT (%)')
+    } else {
+      plot = plot +
+        geom_boxplot(aes(x = geometria, y = inc_rel_phft, fill = geometria)) +
+        labs(y = 'Aumento Rel. PHFT (%)')
+    }
   } else {
-    if (is.null(red)) {
-      plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
-                    aes(x = geometria, y = cgtt, fill = geometria)) +
+    plot = ggplot(data = FiltPHFT(group_by(df, estado, floor), inc))
+    if (red == F) {
+      plot = plot +
+        geom_boxplot(aes(x = geometria, y = cgtt, fill = geometria)) +
         labs(y = 'CgTT (kWh/m²)')
     } else {
       if (red == 'abs') {
-        plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
-                      aes(x = geometria, y = red_cgtt, fill = geometria)) +
+         plot = plot +
+          geom_boxplot(aes(x = geometria, y = red_cgtt, fill = geometria)) +
           labs(y = 'Red. Abs. CgTT (kWh/m²)')
       } else {
-        plot = ggplot(data = PickHighPHFT(group_by(df, estado, floor)),
-                      aes(x = geometria, y = red_rel_cgtt, fill = geometria)) +
+        plot = plot +
+          geom_boxplot(aes(x = geometria, y = red_rel_cgtt, fill = geometria)) +
           labs(y = 'Red. Rel. CgTT (%)')
       }
     }
@@ -262,9 +310,8 @@ PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
     plot = plot + facet_grid(floor ~ estado)
   }
   
-  title_name = NameTitle(dwel, lvl, red)
+  title_name = NameTitle(dwel, lvl, inc, red)
   plot = plot +
-    geom_boxplot() +
     labs(title = paste0(title_name, ' - Box Plot'),
          fill = 'Área:') +
     theme(plot.title = element_text(size = 19, face = 'bold', hjust = 0.5),
@@ -279,8 +326,8 @@ PlotBP = function(lvl, df, dwel, red, save_plot, lx, ly, output_dir) {
           strip.text.y = element_text(size = 17))
   
   if (save_plot) {
-    plot_name = NamePlot(dwel, lvl, red)
-    SavePlot(plot, paste0(plot_name, 'bp'), lx, ly, output_dir)
+    plot_name = NamePlot(dwel, lvl, inc, red)
+    SavePlot(plot, paste0(plot_name, '_bp'), lx, ly, output_dir)
   } else {
     return(plot)
   }
@@ -294,38 +341,38 @@ SavePlot = function(plot, plot_name, lx, ly, output_dir) {
 }
 
 # main functions ####
-CreateScales = function(item, df, dwel, red, save_plot,
+CreateScales = function(item, df, dwel, inc, red, save_plot,
                         lx, ly, output_dir = '') {
   names = c(levels(df[, 'estado']), 'PLOTS')
   item = vector('list', length = length(names))
-  item = lapply(names, DefPerformance, df, dwel, red,
-                save_plot, lx, ly, output_dir)
+  item = lapply(names, DefPerformance, df, dwel, inc,
+                red, save_plot, lx, ly, output_dir)
   names(item) = names
   return(item)
 }
 
-DefPerformance = function(weather, df, dwel, red, save_plot,
-                          lx, ly, output_dir) {
+DefPerformance = function(weather, df, dwel, inc, red,
+                          save_plot, lx, ly, output_dir) {
   item = vector('list', length = 2)
   names = c('intermediario', 'superior')
   if (weather != 'PLOTS') {
-    item = lapply(names, CalcStats, df, weather)
+    item = lapply(names, CalcStats, df, inc, weather)
   } else {
-    item = lapply(names, DefPlots, df, dwel, red,
+    item = lapply(names, DefPlots, df, dwel, inc, red,
                   save_plot, lx, ly, output_dir)
   }
   names(item) = names
   return(item)
 }
 
-DefPlots = function(lvl, df, dwel, red, save_plot,
-                    lx, ly, output_dir) {
+DefPlots = function(lvl, df, dwel, inc, red,
+                    save_plot, lx, ly, output_dir) {
   item = vector('list', length = 2)
   names(item) = c('hist', 'bp')
-  item$hist = PlotHist(lvl, df, dwel, red, save_plot,
-                       lx, ly, output_dir)
-  item$bp = PlotBP(lvl, df, dwel, red, save_plot,
-                   lx, ly, output_dir)
+  item$hist = PlotHist(lvl, df, dwel, inc, red,
+                       save_plot, lx, ly, output_dir)
+  item$bp = PlotBP(lvl, df, dwel, inc, red,
+                   save_plot, lx, ly, output_dir)
   return(item)
 }
 
@@ -338,10 +385,5 @@ dfs_list = mapply(FixDF, dfs_list, names(dfs_list),
 scales = vector('list', length = length(dfs_list))
 names(scales) = names(dfs_list)
 scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
-                MoreArgs = list(red = NULL, save_plot = F))
-
-# to save the plots aditional arguments should be used in scales(), as follow:
-  # plot width (lx) = 33.8 / plot hight (ly) = 19 / output directory (output_dir) must be filled
-# scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
-#                 MoreArgs = list(red = NULL, save_plot = T, lx = 33.8, ly = 19,
-#                                 output_dir = '~/00.git/01.nbr_15575/00.plots/'))
+                MoreArgs = list(inc = F, red = F, save_plot = T, lx = 33.8, ly = 19,
+                                output_dir = '~/00.git/01.nbr_15575/00.plots/'))
