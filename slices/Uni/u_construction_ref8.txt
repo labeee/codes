@@ -1,0 +1,27 @@
+!-   ===========  ALL OBJECTS IN CLASS: CONSTRUCTION ===========
+
+Construction,
+    piso_terreo,             !- Name
+    impermeabilizacao_piso,  !- Outside Layer
+    concreto_5cm_abs0.7,     !- Layer 2
+    contrapiso,              !- Layer 3
+    piso_ceramico_abs0.7;    !- Layer 4
+
+Construction,
+    cob,                     !- Name
+    fibro_telha,             !- Outside Layer
+    camara_cobertura,        !- Layer 2
+    la_vidro_R0.67,          !- Layer 3
+    concreto_10cm_abs0.5;    !- Layer 4
+
+Construction,
+    par_ext,                 !- Name
+    concreto_10cm_abs0.5;    !- Outside Layer
+
+Construction,
+    par_int,                 !- Name
+    concreto_10cm_abs0.5;    !- Outside Layer
+
+Construction,
+    porta,                   !- Name
+    porta_mad_3cm_abs0.5;    !- Outside Layer
