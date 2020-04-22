@@ -18,15 +18,15 @@ start_time = datetime.datetime.now()
 date = start_time.strftime("%d-%m-%y_%H-%M")
 
 # Globals
-FOLDER = 'refs_uni'  # 
+FOLDER = 'refs_uni_8'  # 
 NUM_CLUSTERS = 1  # 2*int(os.cpu_count()/3)  # AQUI EH DEFINIFO O NUMERO DE CORES (RAYNER = 5)
 NAME_STDRD = 'U'
 EXTENSION = 'idf'
 REMOVE_ALL_BUT = [EXTENSION, 'csv', 'err']
 EPW_NAMES = [
-    'BRA_GO_Itumbiara.867740_INMET.epw','BRA_MG_Uberlandia.867760_INMET.epw','BRA_PR_Curitiba.838420_INMET.epw',  # 
-    'BRA_RJ_Duque.de.Caxias-Xerem.868770_INMET.epw','BRA_RS_Santa.Maria.839360_INMET.epw','BRA_SC_Florianopolis.838970_INMET.epw',
-    'BRA_MA_Sao.Luis.817150_INMET.epw','BRA_TO_Palmas.866070_INMET.epw'
+#    'BRA_GO_Itumbiara.867740_INMET.epw','BRA_MG_Uberlandia.867760_INMET.epw','BRA_PR_Curitiba.838420_INMET.epw',  # 
+#    'BRA_RJ_Duque.de.Caxias-Xerem.868770_INMET.epw','BRA_RS_Santa.Maria.839360_INMET.epw','BRA_SC_Florianopolis.838970_INMET.epw','BRA_TO_Palmas.866070_INMET.epw'
+    'BRA_MA_Sao.Luis.817150_INMET.epw'
 ]
 SUP_LIMITS = 'sup_limits.json'
 OUTPUT_PROCESSED = 'outputs_'+FOLDER+'_'+date
@@ -35,7 +35,7 @@ OUTPUT_PROCESSED = 'outputs_'+FOLDER+'_'+date
 GEN_MODELS = False
 RUN_MODELS = False
 PROCESSESS_OUTPUT = True # False  #  
-RUN_ALL = False  # defines GEN_MODELS, RUN_MODELS, PROCESSESS_OUTPUT = True
+RUN_ALL = True  # defines GEN_MODELS, RUN_MODELS, PROCESSESS_OUTPUT = True
 
 SLICES_FOLDER = 'slices/'
 SUB_SLICES_FOLDER = 'Uni/'
@@ -52,7 +52,7 @@ PARAMETERS = {
 
 FIX_PARAMETERS = {
     'veneziana': [SLICES_FOLDER+SUB_SLICES_FOLDER+SLICE_PATTERN+'blind_off.txt'],
-    'componente': [SLICES_FOLDER+SUB_SLICES_FOLDER+SLICE_PATTERN+'construction_ref.txt'],
+    'componente': [SLICES_FOLDER+SUB_SLICES_FOLDER+SLICE_PATTERN+'construction_ref8.txt'],
     'absortancia': [SLICES_FOLDER+'abs_60.txt'],
     'vidro': [SLICES_FOLDER+'glass_fs87.txt'],
     'open_fac': [SLICES_FOLDER+'afn_openingfactor045.txt']
