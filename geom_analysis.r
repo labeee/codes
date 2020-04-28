@@ -111,29 +111,23 @@ PlotCount = function(df, dwel, lvl, inc = F, red = F, output_dir) {
 }
 
 # main code ####
-load('/home/rodox/00.git/01.nbr_15575/outputs.RData')
+load('/home/rodox/0.git/nbr_15575/outputs.RData')
 dfs_list = lapply(dfs_list, FixDF)
 
 # application plots ####
+inc = 'abs'
+red = 'rel'
 for (dwel in c('uni', 'multi')) {
   for (lvl in c('minimo', 'intermediario', 'superior')) {
     if (lvl == 'minimo') {
       PlotCount(CreateCountDF(dfs_list[[dwel]], lvl),
-                dwel, lvl, output_dir = '~/00.git/01.nbr_15575/00.plots/')
+                dwel, lvl, output_dir = '~/0.git/nbr_15575/plots/')
+    } else if (lvl == 'intermediario') {
+      PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc),
+                dwel, lvl, inc, output_dir = '~/0.git/nbr_15575/plots/')
     } else {
-      if (lvl == 'intermediario') {
-        for (inc in c(F, 'abs', 'rel')) {
-          PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc),
-                    dwel, lvl, inc, output_dir = '~/00.git/01.nbr_15575/00.plots/')
-        }
-      } else {
-        for (inc in c(F, 'abs', 'rel')) {
-          for (red in c(F, 'abs', 'rel'))  {
-            PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc, red),
-                      dwel, lvl, inc, red, output_dir = '~/00.git/01.nbr_15575/00.plots/')
-          }
-        }
-      }
+      PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc, red),
+                dwel, lvl, inc, red, output_dir = '~/0.git/nbr_15575/plots/')
     }
   }
 }

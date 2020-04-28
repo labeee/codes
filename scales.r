@@ -53,14 +53,14 @@ RmHighCgTT = function(df) filter(RmLowPerf(df), cgtt < cgtt_ref)
 FiltPHFT = function(df, inc) {
   # df: data frame with cases
   # inc: if the intermediary level depends on absolute or relative values
-    # possible values: 'FALSE' (intermediary level scale depends on phft's absolute value), 'abs' (the
-      # intermediary level scale depends on phft's absolute increase) and 'rel' (the intermediary
-      # level depends on phft's relative increase)
+    # possible values: 'FALSE' (intermediary level scale depends on phft's absolute value), 'abs'
+      # (the intermediary level scale depends on phft's absolute increase) and 'rel' (the
+      # intermediary level depends on phft's relative increase)
   
   df = RmHighCgTT(df) # first all it selects only cases higher than minimum performance
   if (inc == F) {
     df = filter(df, phft > median(phft)) # phft's absolute value
-  } else if(inc == 'abs') {
+  } else if (inc == 'abs') {
     df = filter(df, inc_phft > median(inc_phft)) # phft's absolute increase
   } else {
     df = filter(RmHighCgTT(df), inc_rel_phft > median(inc_rel_phft)) # phft's relative increase
@@ -203,9 +203,9 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
 }
 
 # statistic and plot functions ####
-  # calculate statistics for an specific level and weather (for each geometry and floor)
-    # it's not essencial to run the code itself, but it can help somehow
-CalcStats = function(lvl, df, weather) {
+# calculate scales for an specific level and weather (for each geometry and floor)
+  # it's not essencial to run the code itself, but it can help somehow
+CalcStats = function(lvl, df, inc, weather) {
   # lvl: 'intermediario' or 'superior'
   # df: data frame with cases
   # weather: estado
@@ -258,6 +258,70 @@ CalcStats = function(lvl, df, weather) {
     summ_table[, 3:10] = round(summ_table[, 3:10], 1)
   }
   return(summ_table)
+}
+
+# generate a scales table file
+GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
+  # df: data frame with cases
+  # dwel: 'uni' or 'multi'
+  # inc: 'FALSE', 'abs' or 'rel'
+  # red: 'FALSE', 'abs' or 'rel'
+  # save_table: 'TRUE' or 'FALSE' (the results are returned as variables in rstudio)
+  # output_dir: output directory
+  
+  # group the data frame according to the variables 'estado' and 'floor'
+  scales_tbl = df %>%
+    group_by(estado, floor)
+  # remove cases with performance lower than reference and cgtt higher than reference
+  inter_tbl = scales_tbl %>%
+    RmHighCgTT()
+  # calculate the intermediary performance threshold
+  if (inc == FALSE) {
+    inter_tbl = inter_tbl %>%
+      summarize('PHFT' = median(phft)) %>% # using absolute value of phft
+      as.data.frame()
+  } else if (inc == 'abs') {
+    inter_tbl = inter_tbl %>%
+      summarize('ElevPHFT' = median(inc_phft)) %>% # using absolute value of phft's increase
+      as.data.frame()
+  } else {
+    inter_tbl = inter_tbl %>%
+      summarize('%ElevPHFT' = median(inc_rel_phft)) %>% # using relative value of phft's increase
+      as.data.frame()
+  }
+  # calculate the superior performance threshold
+  sup_tbl = scales_tbl %>%
+    FiltPHFT(inc)
+  if (red == FALSE) {
+    sup_tbl = sup_tbl %>%
+      summarize('CgTT' = median(cgtt)) %>% # using absolute value of cgtt
+      as.data.frame()
+  } else if (red == 'abs') {
+    sup_tbl = sup_tbl %>%
+      summarize('RedCgTT' = median(red_cgtt)) %>% # using absolute value of cgtt's reduction
+      as.data.frame()
+  } else {
+    sup_tbl = sup_tbl %>%
+      summarize('%RedCgTT' = median(red_rel_cgtt)) %>% # using relative value of cgtt's reduction
+      as.data.frame()
+  }
+  # create final data frames with weather zones, floor, intermediary and superior performance
+  if (dwel == 'uni') {
+    # in this case it's floors are ignored, since it's a single storey building
+    scales_tbl = cbind(inter_tbl[1], inter_tbl[3], sup_tbl[3])
+    names(scales_tbl)[1] = 'ZB'
+  } else {
+    # in this case consider the bottom, intermediary and top floors
+    scales_tbl = cbind(inter_tbl[1:2], inter_tbl[3], sup_tbl[3])
+    names(scales_tbl)[1:2] = c('ZB', 'Pavimento')
+  }
+  # write or return the result
+  if (save_table) { # saves a '.csv' file in the output directory
+    write.csv(scales_tbl, file = paste0(output_dir, dwel, '_inc_', inc,
+                                        '_red_', red, '_scales.csv'))
+  } else { # return result into a variable
+    return(scales_tbl)
+  }
 }
 
 # plot histograms
@@ -493,8 +557,8 @@ SavePlot = function(plot, plot_name, lx, ly, output_dir) {
 
 # main functions ####
 # create minimum, intermediary and superior scales for the simulation's output data frame
-CreateScales = function(item, df, dwel, inc, red, save_plot,
-                        lx, ly, output_dir = '') {
+CreateScales = function(item, df, dwel, inc, red, save_table,
+                        save_plot, lx, ly, output_dir = '') {
   # item: local where the output will be returned
   # df: data frame with cases
   # dwel: 'uni' or 'multi'
@@ -507,21 +571,28 @@ CreateScales = function(item, df, dwel, inc, red, save_plot,
   
   # create a vector with the names of the weathers and an extra ('PLOT')
     # this vector will name the following list
-  names = c(levels(df[, 'estado']), 'PLOTS')
+  names = levels(df[, 'estado'])
   # create a list with the length vector defined above
     # which weather item in the list will be filled with its own statistics and the 'PLOTS' item
       # will be filled with scales plots, if 'save_plot' argument is 'FALSE'
   item = vector('list', length = length(names))
-  # apply the function 'DefPerformance' for each weather (see functions below)
-    # the 'DefPerformance' call functions that calculate statistics and create plots
-  item = lapply(names, DefPerformance, df, dwel, inc,
-                red, save_plot, lx, ly, output_dir)
+  # apply the function 'DefStats' for each weather (see functions below)
+    # the 'DefStats' call functions that calculate statistics and create plots
+  item = lapply(names, DefStats, df, dwel, inc, red,
+                save_table, save_plot, lx, ly, output_dir)
   # name the output list
   names(item) = names
+  # for the 'PLOT' item, apply 'DefPlots' function (see function below)
+    # the DefPlots function call the functions PlotHist and PlotBP (see functions above)
+  lvls = c('intermediario', 'superior')
+  item$'PLOTS' = lapply(lvls, DefPlots, df, dwel, inc, red,
+                        save_plot, lx, ly, output_dir)
+  names(item$'PLOTS') = lvls
+  item$'TABLE' = GenScales(df, dwel, inc, red, save_table, output_dir)
   return(item)
 }
 
-DefPerformance = function(weather, df, dwel, inc, red,
+DefStats = function(weather, df, dwel, inc, red, save_table,
                           save_plot, lx, ly, output_dir) {
   # weather: one of the weathers in the data frame (described in the variable 'estado')
   # df: data frame with cases
@@ -537,21 +608,14 @@ DefPerformance = function(weather, df, dwel, inc, red,
     # levels
   item = vector('list', length = 2)
   names = c('intermediario', 'superior')
-  # apply 'CalcStats' function for all the weather items, apply (see function above)
-  if (weather != 'PLOTS') {
-    item = lapply(names, CalcStats, df, weather)
-  # for the 'PLOT' item, apply 'DefPlots' function (see function below)
-    # the DefPlots function call the functions PlotHist and PlotBP (see functions above)
-  } else {
-    item = lapply(names, DefPlots, df, dwel, inc, red,
-                  save_plot, lx, ly, output_dir)
-  }
+  # apply 'CalcStats' function for all the weathers
+  item = lapply(names, CalcStats, df, inc, weather)
   names(item) = names
   return(item)
 }
+
 # define all the plots
-DefPlots = function(lvl, df, dwel, inc, red,
-                    save_plot, lx, ly, output_dir) {
+DefPlots = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   # lvl: 'intermediario' or 'superior'
   # df: data frame with cases
   # dwel: 'uni' or 'multi'
@@ -577,7 +641,7 @@ DefPlots = function(lvl, df, dwel, inc, red,
 
 # main code ####
 # load the files
-load('/home/rodox/00.git/01.nbr_15575/outputs.RData')
+load('/home/rodox/0.git/nbr_15575/outputs.RData')
 # apply 'ShrinkGeom' function for 'uni' and 'multi' (see function above)
   # shrink geometries into 'P', 'M' and 'G'
 dfs_list = lapply(dfs_list, ShrinkGeom)
@@ -590,5 +654,6 @@ scales = vector('list', length = length(dfs_list))
 names(scales) = names(dfs_list)
 # apply 'CreateScales' function for 'uni' and 'multi' (see function above)
 scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
-                MoreArgs = list(inc = F, red = F, save_plot = T, lx = 33.8, ly = 19,
-                                output_dir = '~/00.git/01.nbr_15575/00.plots/'))
+                MoreArgs = list(inc = 'abs', red = 'rel', save_table = T,
+                                save_plot = T, lx = 33.8, ly = 19,
+                                output_dir = '~/0.git/nbr_15575/plots/'))
