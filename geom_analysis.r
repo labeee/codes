@@ -7,20 +7,20 @@ lapply(pkgs, library, character.only = T)
 RmLowPerf = function(df) df %>%
   filter(
     phft > phft_ref &
-      t_max < t_max_ref &
-      !((estado == 'PR' | estado == 'RS' | estado == 'SC') & t_min < t_min_ref)
+      (t_max < t_max_ref + 1) &
+      !((estado == 'PR' | estado == 'RS' | estado == 'SC') & (t_min < t_min_ref - 1))
   )
 # remove cases whose cgtt is higher than cgtt reference
 RmHighCgTT = function(df) filter(RmLowPerf(df), cgtt < cgtt_ref)
 # define cases higher than intermediary performance
 FiltPHFT = function(df, inc) {
-  df = RmHighCgTT(df)
+  df = RmLowPerf(df)
   if (inc == F) {
     df = filter(df, phft > median(phft))
   } else if(inc == 'abs') {
     df = filter(df, inc_phft > median(inc_phft))
   } else {
-    df = filter(RmHighCgTT(df), inc_rel_phft > median(inc_rel_phft))
+    df = filter(df, inc_rel_phft > median(inc_rel_phft))
   }
   return(df)
 }
@@ -50,11 +50,15 @@ NameTitle = function(dwel, lvl, inc, red) {
 
 # data mining functions ####
 FixDF = function(df, unit = 'kwh') {
-  unit = ifelse(unit == 'kwh', 3600000, 1000)
+  div = ifelse(unit == 'kwh', 3600000, 1000)
   df$geometria = sub('.txt', '', df$geometria)
-  df$cgtt = (df$cgtr_cooling + df$cgtr_heating)/3600000
-  df$cgtt_ref = (df$cgtr_cooling_ref + df$cgtr_heating_ref)/3600000
-  df$red_cgtt = df$cgtt - df$cgtt_ref
+  df$cgtt = ifelse(grepl('MA|TO', df$estado), df$cgtr_cooling,
+                   df$cgtr_cooling + df$cgtr_heating)
+  df$cgtt = df$cgtt/(df$area*div)
+  df$cgtt_ref = ifelse(grepl('MA|TO', df$estado), df$cgtr_cooling_ref,
+                       df$cgtr_cooling_ref + df$cgtr_heating_ref)
+  df$cgtt_ref = df$cgtt_ref/(df$area*div)
+  df$red_cgtt = df$cgtt_ref - df$cgtt
   df$red_rel_cgtt = df$red_cgtt/df$cgtt_ref*100
   df$phft = df$phft*100
   df$phft_ref = df$phft_ref*100
@@ -111,7 +115,7 @@ PlotCount = function(df, dwel, lvl, inc = F, red = F, output_dir) {
 }
 
 # main code ####
-load('/home/rodox/0.git/nbr_15575/outputs.RData')
+load('/home/rodox/git/nbr_15575/outputs.rdata')
 dfs_list = lapply(dfs_list, FixDF)
 
 # application plots ####

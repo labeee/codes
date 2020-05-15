@@ -41,8 +41,8 @@ RmLowPerf = function(df) df %>%
   
   filter(
     phft > phft_ref & # choose only cases with phft higher than the reference
-      (t_max < t_max_ref + 0.5) & # choose only cases with highest temperature lower than reference
-        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & (t_min < t_min_ref - 0.5))
+      (t_max < t_max_ref + 1) & # choose only cases with highest temperature lower than reference
+        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & (t_min < t_min_ref - 1))
           # remove cases from zb1 to zb3 whose minimum temperature is lower than reference
   )
 # select cases with cgtt lower the reference
@@ -336,8 +336,8 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   
   # pre-process
     # add a column in the data frame to check if minimum performance is accomplished
-  df$min = ifelse(df$phft > df$phft_ref & (df$t_max < df$t_max_ref + 0.5) &
-                    !(grepl('PR|RS|SC', df$estado) & (df$t_min < df$t_min_ref - 0.5)),
+  df$min = ifelse(df$phft > df$phft_ref & (df$t_max < df$t_max_ref + 1) &
+                    !(grepl('PR|RS|SC', df$estado) & (df$t_min < df$t_min_ref - 1)),
                   '\nAtende', 'Não\natende')
   df$min = factor(df$min, levels = c('Não\natende', '\nAtende'))
   # define the df input as the plot data
@@ -646,7 +646,7 @@ DefPlots = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
 
 # main code ####
 # load the files
-load('/home/rodox/git/nbr_15575/outputs.RData')
+load('/home/rodox/git/nbr_15575/outputs.rdata')
 # apply 'ShrinkGeom' function for 'uni' and 'multi' (see function above)
   # shrink geometries into 'P', 'M' and 'G'
 dfs_list = lapply(dfs_list, ShrinkGeom)
