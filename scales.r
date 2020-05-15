@@ -27,8 +27,8 @@
     # 9) SIMPLIFY = F guarantee that the output of mapply() is a list
 
 # typographic conventions ####
-# variables: underscore separated (e.g. df_output)
-# functions: initial upper camel case (e.g. HighPHFT, FixDF)
+  # variables: underscore separated (e.g. df_output)
+  # functions: initial upper camel case (e.g. HighPHFT, FixDF)
 
 # load libraries ####
 pkgs = c('dplyr', 'ggplot2', 'stringr')
@@ -41,12 +41,12 @@ RmLowPerf = function(df) df %>%
   
   filter(
     phft > phft_ref & # choose only cases with phft higher than the reference
-      t_max < t_max_ref & # choose only cases with highest temperature lower than reference
-        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & t_min < t_min_ref)
+      (t_max < t_max_ref + 0.5) & # choose only cases with highest temperature lower than reference
+        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & (t_min < t_min_ref - 0.5))
           # remove cases from zb1 to zb3 whose minimum temperature is lower than reference
   )
 # select cases with cgtt lower the reference
-RmHighCgTT = function(df) filter(RmLowPerf(df), cgtt < cgtt_ref)
+RmHighCgTT = function(df) filter(df, cgtt < cgtt_ref)
   # df: data frame with cases
 
 # select cases higher than intermediary performance level
@@ -57,14 +57,15 @@ FiltPHFT = function(df, inc) {
       # (the intermediary level scale depends on phft's absolute increase) and 'rel' (the
       # intermediary level depends on phft's relative increase)
   
-  df = RmHighCgTT(df) # first all it selects only cases higher than minimum performance
+  df = RmLowPerf(df) # first all it selects only cases higher than minimum performance
   if (inc == F) {
     df = filter(df, phft > median(phft)) # phft's absolute value
   } else if (inc == 'abs') {
     df = filter(df, inc_phft > median(inc_phft)) # phft's absolute increase
   } else {
-    df = filter(RmHighCgTT(df), inc_rel_phft > median(inc_rel_phft)) # phft's relative increase
+    df = filter(df, inc_rel_phft > median(inc_rel_phft)) # phft's relative increase
   }
+  df = RmHighCgTT(df)
   return(df)
 }
 
@@ -83,13 +84,11 @@ DefVertLinesDF = function(df, lvl, inc, red) {
   if (lvl == 'intermediario') {
     # select the cases higher than minimum performance for each 'estado' and 'floor' (like a grid
       # combination) and apply the functions 'min' and 'mean' to data frames
+    vl_df = RmLowPerf(vl_df)
     if (inc == F) {
       # select cases considering phft's absolute value
-      vl_df = vl_df %>%
-        RmLowPerf() %>%
-        summarise(min = min(phft), median = median(phft))
+      vl_df = summarise(vl_df, min = min(phft), median = median(phft))
     } else {
-      vl_df = RmHighCgTT(vl_df)
       if (inc == 'abs') {
         # select cases considering phft's absolute increse
         vl_df = summarise(vl_df, median = median(inc_phft))
@@ -193,12 +192,14 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
     df$floor = factor(df$floor, levels = c('Cob.', 'Tipo', 'Térreo'))
   }
   # calculate phft's absolute and relative reduction
-  df$cgtt = (df$cgtr_cooling + df$cgtr_heating)/(df$area*div)
-  df$cgtt_ref = (df$cgtr_cooling_ref + df$cgtr_heating_ref)/(df$area*div)
+  df$cgtt = ifelse(grepl('MA|TO', df$estado), df$cgtr_cooling,
+                   df$cgtr_cooling + df$cgtr_heating)
+  df$cgtt = df$cgtt/(df$area*div)
+  df$cgtt_ref = ifelse(grepl('MA|TO', df$estado), df$cgtr_cooling_ref,
+                       df$cgtr_cooling_ref + df$cgtr_heating_ref)
+  df$cgtt_ref = df$cgtt_ref/(df$area*div)
   df$red_cgtt = df$cgtt_ref - df$cgtt # absolute reduction
   df$red_rel_cgtt = df$red_cgtt/df$cgtt_ref*100 # relative reduction
-  # organize estados' levels
-  df$estado = factor(df$estado, levels = c('RS', 'SC', 'PR', 'RJ', 'MG', 'GO', 'TO', 'MA'))
   return(df)
 }
 
@@ -270,11 +271,9 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
   # output_dir: output directory
   
   # group the data frame according to the variables 'estado' and 'floor'
-  scales_tbl = df %>%
-    group_by(estado, floor)
-  # remove cases with performance lower than reference and cgtt higher than reference
-  inter_tbl = scales_tbl %>%
-    RmHighCgTT()
+  scales_tbl = group_by(df, estado, floor)
+  # remove cases with performance lower than reference
+  inter_tbl = RmLowPerf(scales_tbl)
   # calculate the intermediary performance threshold
   if (inc == FALSE) {
     inter_tbl = inter_tbl %>%
@@ -290,8 +289,7 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
       as.data.frame()
   }
   # calculate the superior performance threshold
-  sup_tbl = scales_tbl %>%
-    FiltPHFT(inc)
+  sup_tbl = FiltPHFT(scales_tbl, inc)
   if (red == FALSE) {
     sup_tbl = sup_tbl %>%
       summarize('CgTT' = median(cgtt)) %>% # using absolute value of cgtt
@@ -336,6 +334,12 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   # ly: plot hight
   # output_dir: output directory
   
+  # pre-process
+    # add a column in the data frame to check if minimum performance is accomplished
+  df$min = ifelse(df$phft > df$phft_ref & (df$t_max < df$t_max_ref + 0.5) &
+                    !(grepl('PR|RS|SC', df$estado) & (df$t_min < df$t_min_ref - 0.5)),
+                  '\nAtende', 'Não\natende')
+  df$min = factor(df$min, levels = c('Não\natende', '\nAtende'))
   # define the df input as the plot data
   plot = ggplot(data = df)
   
@@ -355,8 +359,8 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
     vl_df = DefVertLinesDF(df, lvl, inc) # call the function and create a vertical line data frame
     if (inc == F) { # here 'inc' == FALSE, thus it considered the absolute value of phft
       # add histogram with all the cases
-      plot = plot + geom_histogram(aes(x = phft, colour = geometria),
-                                   fill = 'white') +
+      plot = plot + geom_histogram(aes(x = phft, colour = geometria, fill = min)) +
+        scale_fill_manual(values = c('white', 'grey')) +
         # add minimum performance vertical lines
           # case with the lowest absolute phft, considering only cases higher than the minimum
             # performance
@@ -368,13 +372,13 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
     } else {
       if (inc == 'abs') { # here 'inc' == 'abs', thus it considered the phft's absolute increase
         # add histogram with all the cases
-        plot = plot + geom_histogram(aes(x = inc_phft, colour = geometria),
-                                     fill = 'white') +
+        plot = plot + geom_histogram(aes(x = inc_phft, colour = geometria, fill = min)) +
+          scale_fill_manual(values = c('grey', 'white')) +
           labs(x = 'Red. Abs. PHFT (%)')
       } else { # here 'inc' == 'rel', thus it considered the phft's relative increase
         # add histogram with all the cases
-        plot = plot + geom_histogram(aes(x = inc_rel_phft, colour = geometria),
-                                     fill = 'white') +
+        plot = plot + geom_histogram(aes(x = inc_rel_phft, colour = geometria, fill = min)) +
+          scale_fill_manual(values = c('grey', 'white')) +
           labs(x = 'Red. Rel. PHFT (%)')
       }
       # add minimum performance vertical lines
@@ -389,6 +393,7 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
     # add intermediary performance vertical lines using the median
       # remember that vl_df depends on 'inc' argument (it has to be defined to run the function)
     plot = plot +
+      labs(fill = 'Atende aos\ncritérios de\ndesempenho\nmínimo:') +
       geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
       # add intermediary vertical lines' labels
       geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2,
@@ -641,7 +646,7 @@ DefPlots = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
 
 # main code ####
 # load the files
-load('/home/rodox/0.git/nbr_15575/outputs.RData')
+load('/home/rodox/git/nbr_15575/outputs.RData')
 # apply 'ShrinkGeom' function for 'uni' and 'multi' (see function above)
   # shrink geometries into 'P', 'M' and 'G'
 dfs_list = lapply(dfs_list, ShrinkGeom)
@@ -656,4 +661,4 @@ names(scales) = names(dfs_list)
 scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
                 MoreArgs = list(inc = 'abs', red = 'rel', save_table = T,
                                 save_plot = T, lx = 33.8, ly = 19,
-                                output_dir = '~/0.git/nbr_15575/plots/'))
+                                output_dir = '~/git/nbr_15575/plot_table/'))
