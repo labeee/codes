@@ -3,7 +3,7 @@
 Construction,
     piso_terreo,             !- Name
     concreto_10cm_abs0.5;  !- Outside Layer
-
+ 
 Construction,
     piso_laje,               !- Name
     concreto_10cm_abs0.5,    !- Outside Layer
