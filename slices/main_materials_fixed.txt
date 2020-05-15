@@ -32,6 +32,17 @@ Material,
     0.9,                     !- Thermal Absorptance
     0.7,                     !- Solar Absorptance
     0.7;                     !- Visible Absorptance
+    
+Material,
+    piso_ceramico_abs0.5,    !- Name
+    Smooth,                  !- Roughness
+    0.0075,                  !- Thickness {m}
+    1.05,                    !- Conductivity {W/m-K}
+    2000,                    !- Density {kg/m3}
+    920,                     !- Specific Heat {J/kg-K}
+    0.9,                     !- Thermal Absorptance
+    0.7,                     !- Solar Absorptance
+    0.7;                     !- Visible Absorptance
 
 Material,
     concreto_10cm_abs0.5,    !- Name
