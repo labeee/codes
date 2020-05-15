@@ -2,10 +2,7 @@
 
 Construction,
     piso_terreo,             !- Name
-    impermeabilizacao_piso,  !- Outside Layer
-    concreto_5cm_abs0.7,     !- Layer 2
-    contrapiso,              !- Layer 3
-    piso_ceramico_abs0.7;    !- Layer 4
+    concreto_10cm_abs0.5;  !- Outside Layer
 
 Construction,
     cob,                         !- Name

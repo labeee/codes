@@ -2,9 +2,9 @@
 
 Site:GroundTemperature:Undisturbed:FiniteDifference,
     groundtemp_finitediff,   !- Name
-    1.5,                     !- Soil Thermal Conductivity {W/m-K}
+    1,                     !- Soil Thermal Conductivity {W/m-K}
     1250,                    !- Soil Density {kg/m3}
-    1500,                    !- Soil Specific Heat {J/kg-K}
+    1200,                    !- Soil Specific Heat {J/kg-K}
     30,                      !- Soil Moisture Content Volume Fraction {percent}
     50,                      !- Soil Moisture Content Volume Fraction at Saturation {percent}
     0.4;                     !- Evapotranspiration Ground Cover Parameter {dimensionless}
@@ -17,9 +17,9 @@ Site:GroundDomain:Slab,
     10,                      !- Ground Domain Depth {m}
     1,                       !- Aspect Ratio
     5,                       !- Perimeter Offset {m}
-    1.5,                     !- Soil Thermal Conductivity {W/m-K}
+    1,                     !- Soil Thermal Conductivity {W/m-K}
     1250,                    !- Soil Density {kg/m3}
-    1500,                    !- Soil Specific Heat {J/kg-K}
+    1200,                    !- Soil Specific Heat {J/kg-K}
     30,                      !- Soil Moisture Content Volume Fraction {percent}
     50,                      !- Soil Moisture Content Volume Fraction at Saturation {percent}
     Site:GroundTemperature:Undisturbed:FiniteDifference,  !- Undisturbed Ground Temperature Model Type
@@ -38,7 +38,6 @@ Site:GroundDomain:Slab,
     Timestep,                !- Simulation Timestep
     1.6,                     !- Geometric Mesh Coefficient
     6;                       !- Mesh Density Parameter
-
 
 !-   ===========  ALL OBJECTS IN CLASS: SURFACEPROPERTY:OTHERSIDECONDITIONSMODEL ===========
 
