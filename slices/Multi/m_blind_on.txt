@@ -1,3 +1,31 @@
+!-   ===========  ALL OBJECTS IN CLASS: SCHEDULE:COMPACT ===========
+
+Schedule:Compact,
+    Veneziana_Sala,          !- Name
+    On_Off,                  !- Schedule Type Limits Name
+    Through: 12/31,          !- Field 1
+    For: AllDays,            !- Field 2
+    Until: 14:00,            !- Field 3
+    0,                       !- Field 4
+    Until: 18:00,            !- Field 5
+    1,                       !- Field 6
+    Until: 22:00,            !- Field 7
+    1,                       !- Field 8
+    Until: 24:00,            !- Field 9
+    0;                       !- Field 10
+
+Schedule:Compact,
+    Veneziana_Dorm,          !- Name
+    On_Off,                  !- Schedule Type Limits Name
+    Through: 12/31,          !- Field 1
+    For: AllDays,            !- Field 2
+    Until:  8:00,            !- Field 3
+    1,                       !- Field 4
+    Until: 22:00,            !- Field 5
+    0,                       !- Field 6
+    Until: 24:00,            !- Field 7
+    1;                       !- Field 8
+
 !-   ===========  ALL OBJECTS IN CLASS: WINDOWMATERIAL:BLIND ===========
 
 WindowMaterial:Blind,
@@ -42,9 +70,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -61,9 +89,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -80,9 +108,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -99,9 +127,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -118,9 +146,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -137,9 +165,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -156,9 +184,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -175,9 +203,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -194,9 +222,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -213,9 +241,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -232,9 +260,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -251,9 +279,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -270,9 +298,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -289,9 +317,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -308,9 +336,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -327,9 +355,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -346,9 +374,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -365,9 +393,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -384,9 +412,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -403,9 +431,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -422,9 +450,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -441,9 +469,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -460,9 +488,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -479,9 +507,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -500,9 +528,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -519,9 +547,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -538,9 +566,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -557,9 +585,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -576,9 +604,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -595,9 +623,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -614,9 +642,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -633,9 +661,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -652,9 +680,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -671,9 +699,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -690,9 +718,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -709,9 +737,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -728,9 +756,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -747,9 +775,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -766,9 +794,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -785,9 +813,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -804,9 +832,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -823,9 +851,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -842,9 +870,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -861,9 +889,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -880,9 +908,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -899,9 +927,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -918,9 +946,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -937,9 +965,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -958,9 +986,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -977,9 +1005,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -996,9 +1024,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1015,9 +1043,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1034,9 +1062,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1053,9 +1081,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1072,9 +1100,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1091,9 +1119,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1110,9 +1138,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1129,9 +1157,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1148,9 +1176,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1167,9 +1195,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1186,9 +1214,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1205,9 +1233,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1224,9 +1252,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1243,9 +1271,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1262,9 +1290,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1281,9 +1309,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1300,9 +1328,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1319,9 +1347,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1338,9 +1366,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1357,9 +1385,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Sala,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1376,9 +1404,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
@@ -1395,9 +1423,9 @@ WindowShadingControl,
     ExteriorBlind,           !- Shading Type
     ,                        !- Construction with Shading Name
     OnIfHighOutdoorAirTemperature,  !- Shading Control Type
-    ,                        !- Schedule Name
+    Veneziana_Dorm,                        !- Schedule Name
     26,                      !- Setpoint {W/m2, W or deg C}
-    No,                      !- Shading Control Is Scheduled
+    Yes,                      !- Shading Control Is Scheduled
     No,                      !- Glare Control Is Active
     veneziana_madeira,       !- Shading Device Material Name
     FixedSlatAngle,          !- Type of Slat Angle Control for Blinds
