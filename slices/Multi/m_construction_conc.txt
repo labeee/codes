@@ -6,15 +6,11 @@ Construction,
  
 Construction,
     piso_laje,               !- Name
-    concreto_10cm_abs0.5,    !- Outside Layer
-    contrapiso,              !- Layer 2
-    piso_ceramico_abs0.7;    !- Layer 3
+    concreto_10cm_abs0.5;  !- Outside Layer
 
 Construction,
     cob_laje,                !- Name
-    piso_ceramico_abs0.7,    !- Outside Layer
-    contrapiso,              !- Layer 2
-    concreto_10cm_abs0.5;    !- Layer 3
+    concreto_10cm_abs0.5;  !- Outside Layer
 
 Construction,
     cob,                     !- Name
