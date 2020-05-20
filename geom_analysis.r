@@ -125,13 +125,13 @@ for (dwel in c('uni', 'multi')) {
   for (lvl in c('minimo', 'intermediario', 'superior')) {
     if (lvl == 'minimo') {
       PlotCount(CreateCountDF(dfs_list[[dwel]], lvl),
-                dwel, lvl, output_dir = '~/0.git/nbr_15575/plots/')
+                dwel, lvl, output_dir = '~/Desktop/agora/')
     } else if (lvl == 'intermediario') {
       PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc),
-                dwel, lvl, inc, output_dir = '~/0.git/nbr_15575/plots/')
+                dwel, lvl, inc, output_dir = '~/Desktop/agora/')
     } else {
       PlotCount(CreateCountDF(dfs_list[[dwel]], lvl, inc, red),
-                dwel, lvl, inc, red, output_dir = '~/0.git/nbr_15575/plots/')
+                dwel, lvl, inc, red, output_dir = '~/Desktop/agora/')
     }
   }
 }

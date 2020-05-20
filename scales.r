@@ -178,13 +178,7 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
   df$inc_phft = df$phft - df$phft_ref # absolute increase
   df$inc_rel_phft = df$inc_phft/df$phft_ref*100 # relative increase
   # define area each case
-  if (dwel == 'uni') {
-    df$area = ifelse(df$geometria == 'P', area,
-                     ifelse(df$geometria == 'M', 1.5*area, 2*area))
-  } else {
-    df$area = ifelse(df$geometria == 'P',
-                     ifelse(df$uh_expo == 'CANTO', area[1], area[2]),
-                     ifelse(df$uh_expo == 'CANTO', 1.5*area[1], 1.5*area[2]))
+  if (dwel == 'multi') {
     # fix labels to plot
     df$floor = ifelse(df$floor == 'CO', 'Cob.',
                       ifelse(df$floor == 'TP0', 'Tipo', 'Térreo'))
@@ -374,12 +368,12 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
         # add histogram with all the cases
         plot = plot + geom_histogram(aes(x = inc_phft, colour = geometria, fill = min)) +
           scale_fill_manual(values = c('grey', 'white')) +
-          labs(x = 'Red. Abs. PHFT (%)')
+          labs(x = 'Elevação Absoluta PHFT (%)')
       } else { # here 'inc' == 'rel', thus it considered the phft's relative increase
         # add histogram with all the cases
         plot = plot + geom_histogram(aes(x = inc_rel_phft, colour = geometria, fill = min)) +
           scale_fill_manual(values = c('grey', 'white')) +
-          labs(x = 'Red. Rel. PHFT (%)')
+          labs(x = 'Elevação Relativa PHFT (%)')
       }
       # add minimum performance vertical lines
         # case with the highest phft's increase, considering only cases higher than the minimum
@@ -653,6 +647,8 @@ dfs_list = lapply(dfs_list, ShrinkGeom)
 # apply 'FixDF' function for 'uni' and 'multi' (see function above)
 dfs_list = mapply(FixDF, dfs_list, names(dfs_list),
                   list(38.58, c(34.72, 33.81)), SIMPLIFY = F)
+area_uni = dfs_list$uni$area
+area_multi = dfs_list$multi$area
 # create empty list ('scales') to return values of 'CreateScales' function
 scales = vector('list', length = length(dfs_list))
 # name list items as 'uni' and 'multi'
