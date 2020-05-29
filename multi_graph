@@ -1,0 +1,584 @@
+setwd("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais")
+
+## pego o arquivo
+
+multi = read.csv("outputs_multi_uh.csv")
+
+# transformo em kWh/ano
+
+multi$cgtr_cooling = multi$cgtr_cooling/3600000
+multi$cgtr_heating = multi$cgtr_heating/3600000
+multi$cgtr_cooling_ref = multi$cgtr_cooling_ref/3600000
+multi$cgtr_heating_ref = multi$cgtr_heating_ref/3600000
+
+# insiro a zona bioclimática
+
+multi$zb[multi$estado == "PR"] = "1"
+multi$zb[multi$estado == "RS"] = "2"
+multi$zb[multi$estado == "SC"] = "3"
+multi$zb[multi$estado == "MG"] = "4"
+multi$zb[multi$estado == "RJ"] = "5"
+multi$zb[multi$estado == "GO"] = "6"
+multi$zb[multi$estado == "TO"] = "7"
+multi$zb[multi$estado == "MA"] = "8"
+
+# parto lorrany (eh a area de cada apto)
+
+multi$a_orig <- rep(NA, nrow(multi))
+
+for (i in 1:nrow(multi)){
+  if (grepl("CANTO",multi$uh_name[i]) == TRUE) 
+    multi$a_orig[i] = 34.72
+  else
+    multi$a_orig[i] = 33.81
+  
+}
+
+multi$a <- rep(NA, nrow(multi))
+
+for (i in 1:nrow(multi)){
+  if (grepl("_0.txt",multi$geometria[i]) == TRUE) 
+    multi$a[i] = multi$a_orig[i]
+  else if 
+  (grepl("_1.txt",multi$geometria[i]) == TRUE) 
+    multi$a[i] = multi$a_orig[i]*1.5
+  else
+    multi$a[i] = "fator_desconhecido"
+}
+
+# deixando o nome dos parametros mais "amigaveis" - irei pegar esses depois para o df do lsf :)
+
+# multi$pd = substr(multi$geometria, 12,12)  # para o multi o pe direito nao varia
+multi$ratio1 = substr(multi$geometria, 10,10) ## relacao x/y
+multi$ratio[multi$ratio1 == 0] = 1
+multi$ratio[multi$ratio1 == 1] = 2
+multi$ratio[multi$ratio1 == 2] = 0.5
+multi$area_uh[multi$a < 40] = "~ 30 m²"
+multi$area_uh[multi$a > 40] = "~ 50 m²" ## ja calculo a area pelo script da lorrany - funciona so para o multi ver para o uni
+multi$orientacao = substr(multi$azimute, 10,12)
+multi$veneziana_graph = substr(multi$veneziana, 9,10)
+multi$veneziana_graph = ifelse(multi$veneziana_graph == "on", "Sim", "Não")
+multi$alpha1 = substr(multi$absortancia, 5,6)
+multi$alpha[multi$alpha1 == "20"] = "0.2"
+multi$alpha[multi$alpha1 == "60"] = "0.6"
+multi$alpha[multi$alpha1 == "80"] = "0.8"
+multi$glass[multi$vidro == "glass_double-fs87.txt"] = "Duplo, FS Alto"
+multi$glass[multi$vidro == "glass_fs39.txt"] = "Simples, FS Baixo"
+multi$glass[multi$vidro == "glass_fs87.txt"] = "Simples, FS Alto"
+multi$glass[multi$vidro == "glass_double-fs39-87.txt"] = "Duplo, FS Baixo"
+multi$vent1 = substr(multi$open_fac, 18,20)
+multi$vent[multi$vent1 == "045"] = "45%"
+multi$vent[multi$vent1 == "100"] = "100%"
+multi$varanda1 = substr(multi$sombreamento, 9,11)
+multi$varanda = ifelse(multi$varanda1 == "000", "Não", "Sim")
+multi$abertura = substr(multi$paf, 7,8) 
+multi$abertura = paste0(multi$abertura, "%")
+multi$exposicao_piso[multi$solo == "p"] = "Pilotis"
+multi$exposicao_piso[multi$solo == "g"] = "Solo"
+multi$piso[multi$floor == "CO"] = "Cobertura"
+multi$piso[multi$floor == "TE"] = "Térreo"
+multi$piso[multi$floor == "TP0"] = "Intermediário"
+multi$local[multi$uh_expo == "CANTO"] = "Canto"
+multi$local[multi$uh_expo == "MEIO"] = "Meio"
+
+## pegando so os casos lsf
+
+## para funcionar uma funcao minha nos graficos, preciso fazer isso:
+
+multi$phft_real = multi$phft
+multi$t_max_real = multi$t_max
+multi$t_min_real = multi$t_min
+
+lsf = subset(multi, multi$componente == "m_construction_sfiso.txt", select = c("uh_name","case", "ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref",
+                                                                               "cgtr_cooling","cgtr_heating","componente","estado","ph_inf_ref","ph_sup_ref","phft_ref",
+                                                                               "cgtr_cooling_ref","cgtr_heating_ref","zb","a","ratio","area_uh","orientacao","veneziana_graph",
+                                                                               "alpha","glass","vent","varanda","abertura","exposicao_piso","piso","local"))
+
+## transformando a zb em numero para eu conseguir fazer o subset de cada e calcular a carga termica com e sem aquecimento
+
+lsf$zb = as.numeric(lsf$zb)
+
+# somando a carga termica de aqucimento com a de refrigeracao quando necessario
+
+lsf$cgt_real = ifelse(lsf$zb < 4, lsf$cgtr_cooling + lsf$cgtr_heating, lsf$cgtr_cooling)
+lsf$cgt_ref = ifelse(lsf$zb < 4, lsf$cgtr_cooling_ref + lsf$cgtr_heating_ref, lsf$cgtr_cooling_ref)
+
+# criando as colunas da reducao de carga termica e elevacao do phft
+
+lsf$red_cgt = 0
+lsf$ele_phft = 0
+
+## as condicoes aqui apresentadas nao estao na norma, mas talvez sejam inseridas....
+
+for(i in 1:nrow(lsf)){
+  if(lsf$cgt_real[i] == 0){  ## se cgt for igual a zero ja diz que ela eh 100% de redução
+    lsf$red_cgt[i] = 1
+  }else{
+    if(lsf$cgt_real[i] == 0 & lsf$cgt_ref[i] == 0){ ## se cgt real = 0 e cgt referencia = 0 eh 100% de reducao
+      lsf$red_cgt[i] = 1
+    }else{
+      if((lsf$cgt_ref[i] < lsf$cgt_real[i])){ ## se a cgt referencia for menor que a real eh 0% de reducao
+        lsf$red_cgt[i] = 0
+      }else{
+        lsf$red_cgt[i] = 1-(lsf$cgt_real[i]/lsf$cgt_ref[i]) ## aqui eh se nenhuma das condicoes anteriores forem atendidas
+      }
+    }
+  }
+}
+
+
+for(i in 1:nrow(lsf)){
+if(lsf$phft_real[i] == 0 & lsf$phft_ref[i] > 0){ ## se phft real = 0 e phft referencia > 0 elevacao do phft eh 0
+  lsf$ele_phft[i] = 0
+}else{
+  if(lsf$phft_real[i] == 0 & lsf$phft_ref[i] == 0){ ## se phft real = 0 e refeencia =0 a elevacao do phft = 0
+    lsf$ele_phft[i] = 0
+  }else{
+    lsf$ele_phft[i] = (lsf$phft_real[i]/lsf$phft_ref[i])-1 ## aqui eh se nenhuma das condicoes anteriores forem atendidas
+    }
+  }
+}
+
+## calculando a kWh/m².ano
+
+lsf$cgt_real_area = lsf$cgt_real/lsf$a
+lsf$cgt_ref_area = lsf$cgt_ref/lsf$a
+
+## diferencia absoluta da cgt real (kWh/m².ano) para referencia
+
+lsf$cgt_dif = lsf$cgt_real_area - lsf$cgt_ref_area
+
+## diferencao do phft real pela referencia
+
+lsf$phft_dif = (lsf$phft_real - lsf$phft_ref)
+
+## transformando em caractere a zb de novo para insercao no grafico
+
+## graficos
+
+library(ggplot2)
+
+## eu coloco essas infos abaixo antes pq dai fica mais facil soh copiar e colar o grafico modificando poucas coisas e nao se perdendo...
+
+## dividindo por zonas bioclimaticas
+
+zb_1_3 = subset(lsf, lsf$zb < 4)
+zb_4_8 = subset(lsf, lsf$zb > 3)
+
+zb_1_3$zb = as.character(zb_1_3$zb)
+zb_4_8$zb = as.character(zb_4_8$zb)
+lsf$zb = as.character(lsf$zb)
+
+rm(multi)
+
+## boxplot ----
+
+parametros = c("ratio","area_uh","orientacao","veneziana_graph","alpha","glass","vent","varanda","abertura","exposicao_piso","local")
+real_indicador = c("phft_real","t_max_real","cgt_real_area","cgt_dif","phft_dif","red_cgt","ele_phft")
+
+for(p in parametros){
+  for(real in real_indicador){
+    
+    setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/boxplot/",real))
+    
+    png = paste("multi",p,real,".png",sep = "_") #mudar para unifamiliar quando for
+    x_title = "Zona Bioclimática" #talvez mude
+    y_title = ifelse(grepl(pattern = "phft_real",real),"Percentual de Horas ocupadas da UH dentro da\n Faixa de Temperatura operativa (PHFT)",
+                     ifelse(grepl(pattern = "t_max_real",real),"Temperatura Operativa Máxima da UH",
+                            ifelse(grepl(pattern = "cgt_real_area",real),"Carga Térmica Anual - Modelo Real (kWh/m².ano)",
+                                   ifelse(grepl(pattern = "cgt_dif",real),"CgTt Modelo Real - CgTt Modelo Referência (kWh/m².ano)",
+                                          ifelse(grepl(pattern = "phft_dif",real),"PHFT Modelo Real - PHFT Modelo Referência\n",
+                                                ifelse(grepl(pattern = "ele_phft",real),"Elevação do PHFT do modelo real com\n relação ao modelo de referência",
+                                                       ifelse(grepl(pattern = "red_cgt",real),"Redução da CgTt do modelo real com\n relação ao modelo de referência","...")))))))
+                     
+    title = paste(real,p, sep = " x ")
+    
+    png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+    plot(
+      ggplot(lsf, aes(x=zb, y=lsf[,grepl(pattern = real,colnames(lsf))])) + ## mudo aqui
+        geom_boxplot(size = .2)+
+        labs(x=x_title, y=y_title, 
+             title = title)+ ## mudo aqui
+        theme(
+          # legend.position="bottom",
+          #     legend.box = "vertical",
+          #     legend.text = element_text(size=8),
+          axis.title.y = element_text(size=9),
+          axis.title.x = element_text(size=9),
+          axis.text.y = element_text(size=9),
+          axis.text.x = element_text(size=9),
+          strip.text = element_text(size = 9))+
+        facet_grid(piso~lsf[,grepl(paste0(p),colnames(lsf))]) ## mudo aqui
+      
+    )
+    dev.off()
+  }
+}
+
+## pontos ----
+
+# phft ----
+
+parametros = c("ratio","area_uh","orientacao","veneziana_graph","alpha","glass","vent","varanda","abertura","exposicao_piso","local")
+real_indicador = c("phft_real")
+ref_indicador = c("phft_ref") ##faltou a temp_max e temp_min da referencia - ja avisei a amanda
+
+for(p in parametros){
+  for(real in real_indicador){
+    for(ref in  ref_indicador){
+      
+      setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/point/",real))
+      
+      y_title = "PHFT referência" #talvez mude
+      x_title = "PHFT real"
+      title = paste(real,ref, sep = " x ")
+      
+      ## zb 1 a 3
+      
+      png = paste("multi",p,real,"pontos_zb1_3.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_1_3, aes(y=zb_1_3[,grepl(pattern = ref,colnames(zb_1_3))], x=zb_1_3[,grepl(pattern = real,colnames(zb_1_3))], color = zb_1_3[,grepl(pattern = p,colnames(zb_1_3))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+      ## zb 4 a 8
+      
+      png = paste("multi",p,real,"pontos_zb4_8.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_4_8, aes(y=zb_4_8[,grepl(pattern = ref,colnames(zb_4_8))], x=zb_4_8[,grepl(pattern = real,colnames(zb_4_8))], color = zb_4_8[,grepl(pattern = p,colnames(zb_4_8))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+    }
+  }
+}
+
+# cgt ----
+
+parametros = c("ratio","area_uh","orientacao","veneziana_graph","alpha","glass","vent","varanda","abertura","exposicao_piso","local")
+real_indicador = c("cgt_real_area")
+ref_indicador = c("cgt_ref_area") ##faltou a temp_max e temp_min da referencia - ja avisei a amanda
+
+for(p in parametros){
+  for(real in real_indicador){
+    for(ref in  ref_indicador){
+      
+      setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/point/",real))
+      
+      x_title = "CgTt referência (kWh/m².ano)" #talvez mude
+      y_title = "CgTt real (kWh/m².ano)"
+      title = paste(real,ref, sep = " x ")
+      
+      ## zb 1 a 3
+      
+      png = paste("multi",p,real,"pontos_zb1_3.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_1_3, aes(y=zb_1_3[,grepl(pattern = real,colnames(zb_1_3))], x=zb_1_3[,grepl(pattern = ref,colnames(zb_1_3))], color = zb_1_3[,grepl(pattern = p,colnames(zb_1_3))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+      ## zb 4 a 8
+      
+      png = paste("multi",p,real,"pontos_zb4_8.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_4_8, aes(y=zb_4_8[,grepl(pattern = real,colnames(zb_4_8))], x=zb_4_8[,grepl(pattern = ref,colnames(zb_4_8))], color = zb_4_8[,grepl(pattern = p,colnames(zb_4_8))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+    }
+  }
+}
+
+# temp. max ----
+
+parametros = c("ratio","area_uh","orientacao","veneziana_graph","alpha","glass","vent","varanda","abertura","exposicao_piso","local")
+real_indicador = c("t_max_real")
+ref_indicador = c("t_max_ref") ##faltou a temp_max e temp_min da referencia - ja avisei a amanda
+
+for(p in parametros){
+  for(real in real_indicador){
+    for(ref in  ref_indicador){
+      
+      setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/point/",real))
+      
+      x_title = "Tomax, UH referência" #talvez mude
+      y_title = "Tomax, UH real"
+      title = paste(real,ref, sep = " x ")
+      
+      ## zb 1 a 3
+      
+      png = paste("multi",p,real,"pontos_zb1_3.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_1_3, aes(y=zb_1_3[,grepl(pattern = real,colnames(zb_1_3))], x=zb_1_3[,grepl(pattern = ref,colnames(zb_1_3))], color = zb_1_3[,grepl(pattern = p,colnames(zb_1_3))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+      ## zb 4 a 8
+      
+      png = paste("multi",p,real,"pontos_zb4_8.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_4_8, aes(y=zb_4_8[,grepl(pattern = real,colnames(zb_4_8))], x=zb_4_8[,grepl(pattern = ref,colnames(zb_4_8))], color = zb_4_8[,grepl(pattern = p,colnames(zb_4_8))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+    }
+  }
+}
+
+# temp. min ----
+
+parametros = c("ratio","area_uh","orientacao","veneziana_graph","alpha","glass","vent","varanda","abertura","exposicao_piso","local")
+real_indicador = c("t_min_real")
+ref_indicador = c("t_min_ref") ##faltou a temp_max e temp_min da referencia - ja avisei a amanda
+
+for(p in parametros){
+  for(real in real_indicador){
+    for(ref in  ref_indicador){
+      
+      setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/point/",real))
+      
+      y_title = "Tomin, UH referência" #talvez mude
+      x_title = "Tomin, UH real"
+      title = paste(real,ref, sep = " x ")
+      
+      ## zb 1 a 3
+      
+      png = paste("multi",p,real,"pontos_zb1_3.png",sep = "_") #mudar para unifamiliar quando for
+      
+      png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+      plot(
+        ggplot(zb_1_3, aes(y=zb_1_3[,grepl(pattern = ref,colnames(zb_1_3))], x=zb_1_3[,grepl(pattern = real,colnames(zb_1_3))], color = zb_1_3[,grepl(pattern = p,colnames(zb_1_3))]))+ ## mudo aqui
+          geom_point(alpha = 0.5)+
+          geom_abline()+
+          labs(x=x_title, y = y_title, color = p,
+               title = title)+ ## mudo aqui
+          theme(
+            legend.position="bottom",
+            legend.box = "vertical",
+            legend.text = element_text(size=8),
+            axis.title.y = element_text(size=9),
+            axis.title.x = element_text(size=9),
+            axis.text.y = element_text(size=9),
+            axis.text.x = element_text(size=9),
+            strip.text = element_text(size = 9))+
+          facet_grid(piso~zb) ## mudo aqui
+      )
+      dev.off()
+      
+    }
+  }
+}
+
+
+# outro tipo de graph: por zona bioclimática ----
+
+df_ratio = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                  "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","ratio"))
+names(df_ratio)[names(df_ratio) == "ratio"] = "variavel"
+df_ratio$var_name = "Ratio"
+
+df_area = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                 "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","area_uh"))
+names(df_area)[names(df_area) == "area_uh"] = "variavel"
+df_area$var_name = "Área UH"
+
+df_orientacao = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                       "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","orientacao"))
+names(df_orientacao)[names(df_orientacao) == "orientacao"] = "variavel"
+df_orientacao$var_name = "Rotação do Norte"
+
+df_vene = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                 "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","veneziana_graph"))
+names(df_vene)[names(df_vene) == "veneziana_graph"] = "variavel"
+df_vene$var_name = "Veneziana"
+
+df_alpha = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                 "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","alpha"))
+names(df_alpha)[names(df_alpha) == "alpha"] = "variavel"
+df_alpha$var_name = "Absortância"
+
+df_glass = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                  "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","glass"))
+names(df_glass)[names(df_glass) == "glass"] = "variavel"
+df_glass$var_name = "Tipo de Vidro"
+
+df_vent = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                 "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","vent"))
+names(df_vent)[names(df_vent) == "vent"] = "variavel"
+df_vent$var_name = "% Abertura Ventilação"
+
+df_varanda = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                    "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","varanda"))
+names(df_varanda)[names(df_varanda) == "varanda"] = "variavel"
+df_varanda$var_name = "Varanda"
+
+df_abertura = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                     "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","abertura"))
+names(df_abertura)[names(df_abertura) == "abertura"] = "variavel"
+df_abertura$var_name = "WWR"
+
+df_exp_piso = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                     "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","exposicao_piso"))
+names(df_exp_piso)[names(df_exp_piso) == "exposicao_piso"] = "variavel"
+df_exp_piso$var_name = "Contato Piso UH"
+
+df_local = subset(lsf, select = c("uh_name","case","zb","piso","ph_inf","ph_sup","phft_real","t_max_real","t_min_real","t_min_ref","t_max_ref","ph_inf_ref","ph_sup_ref","phft_ref",
+                                  "cgt_real","cgt_ref","red_cgt","ele_phft","cgt_real_area","cgt_ref_area","cgt_dif","phft_dif","local"))
+names(df_local)[names(df_local) == "local"] = "variavel"
+df_local$var_name = "Localização UH"
+
+df = rbind(df_abertura, df_alpha, df_area, df_exp_piso, df_glass, df_local, df_orientacao, df_ratio, df_varanda, df_vene, df_vent)
+
+# zb1 = subset(df, df$zb == "1")
+# zb2 = subset(df, df$zb == "2")
+# zb3 = subset(df, df$zb == "3")
+# zb4 = subset(df, df$zb == "4")
+# zb5 = subset(df, df$zb == "5")
+# zb6 = subset(df, df$zb == "6")
+# zb7 = subset(df, df$zb == "7")
+# zb8 = subset(df, df$zb == "8")
+
+library(ggplot2)
+
+# boxplot ----
+
+real_indicador = c("phft_real","t_max_real","t_min_real","red_cgt","ele_phft","cgt_real_area","cgt_dif","phft_dif")
+zb = c("1","2","3","4","5","6","7","8")
+
+for(real in real_indicador){
+  for(z in zb){
+    
+    setwd(paste0("D:/Frentes de Trabalho/Saint-Gobain/atividades_finais/novos/outro graph/","ZB",z))
+    
+    png = paste("multi","zb",z,real,".png",sep = "_") #mudar para unifamiliar quando for
+    y_title = ifelse(grepl(pattern = "phft_real",real),"Percentual de Horas ocupadas da UH dentro da\n Faixa de Temperatura operativa (PHFT)",
+                     ifelse(grepl(pattern = "t_max_real",real),"Temperatura Operativa Máxima da UH",
+                            ifelse(grepl(pattern = "t_min_real",real),"Temperatura Operativa Mínima da UH",
+                                   ifelse(grepl(pattern = "cgt_real_area",real),"Carga Térmica Anual - Modelo Real (kWh/m².ano)",
+                                          ifelse(grepl(pattern = "cgt_dif",real),"CgTt Modelo Real - CgTt Modelo Referência (kWh/m².ano)",
+                                                 ifelse(grepl(pattern = "phft_dif",real),"PHFT Modelo Real - PHFT Modelo Referência\n",
+                                                        ifelse(grepl(pattern = "ele_phft",real),"Elevação do PHFT do modelo real com\n relação ao modelo de referência",
+                                                               ifelse(grepl(pattern = "red_cgt",real),"Redução da CgTt do modelo real com\n relação ao modelo de referência","..."))))))))
+    
+    title = paste0("ZB ",z,": ", real)
+    
+    df_zb = subset(df, df$zb == z)
+    
+    png(filename = png, width = 32, height = 18, units = "cm", res = 500)
+    plot(
+      ggplot(df_zb, aes(x=variavel, y=df_zb[,grepl(pattern = real,colnames(df_zb))])) + ## mudo aqui
+        geom_boxplot(size = .2)+
+        labs(x=NULL, y=y_title, 
+             title = title)+ ## mudo aqui
+        theme(
+          # legend.position="bottom",
+          #     legend.box = "vertical",
+          #     legend.text = element_text(size=8),
+          axis.title.y = element_text(size=7),
+          axis.text.y = element_text(size=7),
+          axis.text.x = element_text(size=6, angle = 90, vjust = 0.5),
+          strip.text = element_text(size = 6))+
+        # facet_wrap(piso~var_name, scales = "free_x", ncol = 11) ## mudo aqui
+      facet_grid(piso~var_name, scales='free_x') ## mudo aqui
+      
+    )
+    dev.off()
+    
+  }
+}
