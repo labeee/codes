@@ -31,8 +31,10 @@
   # functions: initial upper camel case (e.g. HighPHFT, FixDF)
 
 # load libraries ####
-pkgs = c('dplyr', 'ggplot2', 'stringr')
-lapply(pkgs, library, character.only = T)
+invisible({
+  pkgs = c('dplyr', 'ggplot2', 'stringr')
+  lapply(pkgs, library, character.only = T)
+})
 
 # auxiliar functions ####
 # select cases higher than the minimum performance level
@@ -59,11 +61,11 @@ FiltPHFT = function(df, inc) {
   
   df = RmLowPerf(df) # first all it selects only cases higher than minimum performance
   if (inc == F) {
-    df = filter(df, phft > median(phft)) # phft's absolute value
+    df = filter(df, phft > quantile(phft, p = 0.3)) # phft's absolute value
   } else if (inc == 'abs') {
-    df = filter(df, inc_phft > median(inc_phft)) # phft's absolute increase
+    df = filter(df, inc_phft > quantile(inc_phft, p = 0.3)) # phft's absolute increase
   } else {
-    df = filter(df, inc_rel_phft > median(inc_rel_phft)) # phft's relative increase
+    df = filter(df, inc_rel_phft > quantile(inc_rel_phft , p = 0.3)) # phft's relative increase
   }
   df = RmHighCgTT(df)
   return(df)
@@ -87,14 +89,14 @@ DefVertLinesDF = function(df, lvl, inc, red) {
     vl_df = RmLowPerf(vl_df)
     if (inc == F) {
       # select cases considering phft's absolute value
-      vl_df = summarise(vl_df, min = min(phft), median = median(phft))
+      vl_df = summarise(vl_df, min = min(phft), q30 = quantile(phft, p = 0.3))
     } else {
       if (inc == 'abs') {
         # select cases considering phft's absolute increse
-        vl_df = summarise(vl_df, median = median(inc_phft))
+        vl_df = summarise(vl_df, q30 = quantile(inc_phft, p = 0.3))
       } else {
         # select cases considering phft's relative increse
-        vl_df = summarise(vl_df, median = median(inc_rel_phft))
+        vl_df = summarise(vl_df, q30 = quantile(inc_rel_phft, p = 0.3))
       }
     }
   } else {
@@ -103,14 +105,14 @@ DefVertLinesDF = function(df, lvl, inc, red) {
     vl_df = FiltPHFT(vl_df, inc)
     if (red == F) {
       # select cases considering cgtt's absolute value
-      vl_df = summarise(vl_df, median = median(cgtt))
+      vl_df = summarise(vl_df, q30 = quantile(cgtt, p = 0.3))
     } else {
       if (red == 'abs') {
         # select cases considering cgtt's absolute reduction
-        vl_df = summarise(vl_df, median = median(red_cgtt))
+        vl_df = summarise(vl_df, q30 = quantile(red_cgtt, p = 0.3))
       } else {
         # select cases considering cgtt's relative reduction
-        vl_df = summarise(vl_df, median = median(red_rel_cgtt))
+        vl_df = summarise(vl_df, q30 = quantile(red_rel_cgtt, p = 0.3))
       }
     }
   }
@@ -271,30 +273,30 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
   # calculate the intermediary performance threshold
   if (inc == FALSE) {
     inter_tbl = inter_tbl %>%
-      summarize('PHFT' = median(phft)) %>% # using absolute value of phft
+      summarize('PHFT' = quantile(phft, p = 0.3)) %>% # using absolute value of phft
       as.data.frame()
   } else if (inc == 'abs') {
     inter_tbl = inter_tbl %>%
-      summarize('ElevPHFT' = median(inc_phft)) %>% # using absolute value of phft's increase
+      summarize('ElevPHFT' = quantile(inc_phft, p = 0.3)) %>% # using absolute value of phft's increase
       as.data.frame()
   } else {
     inter_tbl = inter_tbl %>%
-      summarize('%ElevPHFT' = median(inc_rel_phft)) %>% # using relative value of phft's increase
+      summarize('%ElevPHFT' = quantile(inc_rel_phft, p = 0.3)) %>% # using relative value of phft's increase
       as.data.frame()
   }
   # calculate the superior performance threshold
   sup_tbl = FiltPHFT(scales_tbl, inc)
   if (red == FALSE) {
     sup_tbl = sup_tbl %>%
-      summarize('CgTT' = median(cgtt)) %>% # using absolute value of cgtt
+      summarize('CgTT' = quantile(cgtt, p = 0.3)) %>% # using absolute value of cgtt
       as.data.frame()
   } else if (red == 'abs') {
     sup_tbl = sup_tbl %>%
-      summarize('RedCgTT' = median(red_cgtt)) %>% # using absolute value of cgtt's reduction
+      summarize('RedCgTT' = quantile(red_cgtt, p = 0.3)) %>% # using absolute value of cgtt's reduction
       as.data.frame()
   } else {
     sup_tbl = sup_tbl %>%
-      summarize('%RedCgTT' = median(red_rel_cgtt)) %>% # using relative value of cgtt's reduction
+      summarize('%RedCgTT' = quantile(red_rel_cgtt, p = 0.3)) %>% # using relative value of cgtt's reduction
       as.data.frame()
   }
   # create final data frames with weather zones, floor, intermediary and superior performance
@@ -388,9 +390,9 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
       # remember that vl_df depends on 'inc' argument (it has to be defined to run the function)
     plot = plot +
       labs(fill = 'Atende aos\ncritérios de\ndesempenho\nmínimo:') +
-      geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed') +
+      geom_vline(data = vl_df, aes(xintercept = q30), linetype = 'dashed') +
       # add intermediary vertical lines' labels
-      geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2,
+      geom_text(data = vl_df, aes(x = q30, y = Inf, vjust = 2,
                                   label = '     I->', fontface = 'bold'))
   } else {
     vl_df = DefVertLinesDF(df, lvl, inc, red) # call the function and create a vertical line data frame
@@ -400,7 +402,7 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
                                    alpha = 0.5, fill = 'white') +
         labs(x = 'CgTT (kWh/m²)') +
         # add superior vertical lines' labels
-        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
+        geom_text(data = vl_df, aes(x = q30, y = Inf, vjust = 2, fontface = 'bold',
                                     label = '       <-S'))
     } else {
       if (red == 'abs') { # here 'red' == 'abs', thus it considered the cgtt's absolute reduction
@@ -416,12 +418,12 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
       }
       # add superior vertical lines' labels
       plot = plot +
-        geom_text(data = vl_df, aes(x = median, y = Inf, vjust = 2, fontface = 'bold',
+        geom_text(data = vl_df, aes(x = q30, y = Inf, vjust = 2, fontface = 'bold',
                                     label = '       S->'))
     }
     # add intermediary performance vertical lines
       # in this case vl_df depends on 'red' argument (it has to be defined to run the function)
-    plot = plot + geom_vline(data = vl_df, aes(xintercept = median), linetype = 'dashed')
+    plot = plot + geom_vline(data = vl_df, aes(xintercept = q30), linetype = 'dashed')
   }
   # final details
   title_name = NameTitle(dwel, lvl, inc, red) # call the function that create the plot title
@@ -640,7 +642,7 @@ DefPlots = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
 
 # main code ####
 # load the files
-load('/home/rodox/git/nbr_15575/outputs.rdata')
+load('/home/rodox/git/nbr/outputs.rdata')
 # apply 'ShrinkGeom' function for 'uni' and 'multi' (see function above)
   # shrink geometries into 'P', 'M' and 'G'
 dfs_list = lapply(dfs_list, ShrinkGeom)
@@ -657,4 +659,4 @@ names(scales) = names(dfs_list)
 scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
                 MoreArgs = list(inc = 'abs', red = 'rel', save_table = T,
                                 save_plot = T, lx = 33.8, ly = 19,
-                                output_dir = '~/git/nbr_15575/plot_table/'))
+                                output_dir = '~/git/nbr/plot_table/q30/'))
