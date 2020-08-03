@@ -1,0 +1,142 @@
+{
+    "referencia_zb1-7": {
+        "paredes_externas": {
+            "transmitancia": 4.4,
+            "capacidade_termica": 220000
+        },
+        "cobertura": {
+            "transmitancia": 2.04,
+            "capacidade_termica": 231424
+        }
+    },
+    "referencia_zb8": {
+        "paredes_externas": {
+            "transmitancia": 4.4,
+            "capacidade_termica": 220000
+        },
+        "cobertura": {
+            "transmitancia": 0.86,
+            "capacidade_termica": 231424
+        }
+    },
+    "concreto_uni": {
+        "paredes_externas": {
+            "transmitancia": 4.4,
+            "capacidade_termica": 220000
+        },
+        "cobertura": {
+            "transmitancia": 1.88,
+            "capacidade_termica": 20624
+        }
+    },
+    "concreto_multi": {
+        "paredes_externas": {
+            "transmitancia": 4.4,
+            "capacidade_termica": 220000
+        },
+        "cobertura": {
+            "transmitancia": 2.04,
+            "capacidade_termica": 231424
+        }
+    },
+    "steel_frame_ar_uni": {
+        "paredes_externas": {
+            "transmitancia": 2.6,
+            "capacidade_termica": 29788
+        },
+        "cobertura": {
+            "transmitancia": 0.47,
+            "capacidade_termica": 21226
+        }
+    },
+    "steel_frame_ar_multi": {
+        "paredes_externas": {
+            "transmitancia": 2.6,
+            "capacidade_termica": 29788
+        },
+        "cobertura": {
+            "transmitancia": 0.47,
+            "capacidade_termica": 231438
+        }
+    },
+    "steel_frame_isolante_uni": {
+        "paredes_externas": {
+            "transmitancia": 0.68,
+            "capacidade_termica": 29788
+        },
+        "cobertura": {
+            "transmitancia": 0.47,
+            "capacidade_termica": 21226
+        }
+    },
+    "steel_frame_isolante_multi": {
+        "paredes_externas": {
+            "transmitancia": 0.68,
+            "capacidade_termica": 29788
+        },
+        "cobertura": {
+            "transmitancia": 0.47,
+            "capacidade_termica": 231438
+        }
+    },
+    "tijolo_macico_10cm_uni": {
+        "paredes_externas": {
+            "transmitancia": 3.77,
+            "capacidade_termica": 165600
+        },
+        "cobertura": {
+            "transmitancia": 1.88,
+            "capacidade_termica": 20624
+        }
+    },
+    "tijolo_macico_10cm_multi": {
+        "paredes_externas": {
+            "transmitancia": 3.77,
+            "capacidade_termica": 165600
+        },
+        "cobertura": {
+            "transmitancia": 2.04,
+            "capacidade_termica": 231424
+        }
+    },
+    "tijolo_macico_20cm_uni": {
+        "paredes_externas": {
+            "transmitancia": 2.77,
+            "capacidade_termica": 331200
+        },
+        "cobertura": {
+            "transmitancia": 1.88,
+            "capacidade_termica": 20624
+        }
+    },
+    "tijolo_macico_20cm_multi": {
+        "paredes_externas": {
+            "transmitancia": 2.77,
+            "capacidade_termica": 331200
+        },
+        "cobertura": {
+            "transmitancia": 2.04,
+            "capacidade_termica": 231424
+        }
+    },
+    "tijolo_vazado_uni": {
+        "paredes_externas": {
+            "transmitancia": 2.43,
+            "capacidade_termica": 138272
+        },
+        "cobertura": {
+            "transmitancia": 1.88,
+            "capacidade_termica": 20624
+        }
+    },
+    "tijolo_vazado_multi": {
+        "paredes_externas": {
+            "transmitancia": 2.43,
+            "capacidade_termica": 138272
+        },
+        "cobertura": {
+            "transmitancia": 2.04,
+            "capacidade_termica": 231424
+        }
+    }
+}

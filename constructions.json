@@ -1,0 +1,248 @@
+{
+    "resistencias": {
+        "paredes_externas": {
+            "rsi": 0.13,
+            "rse": 0.04
+        },
+        "cobertura": {
+            "rsi": 0.17,
+            "rse": 0.04
+        }
+    },
+    "isolantes": {
+        "la_vidro": 1.25,
+        "resistencia_termica_zb8": 0.67,
+        "camara_parede": 0.17,
+        "camara_cobertura": 0.21,
+        "camara_baixa_emissividade": 0.61
+    },
+    "materiais": {
+        "concreto_10cm": {
+            "espessura": 0.1,
+            "condutividade_termica": 1.75,
+            "densidade": 2200,
+            "calor_especifico": 1000
+        },
+        "telha_fibrocimento": {
+            "espessura": 0.008,
+            "condutividade_termica": 0.65,
+            "densidade": 1700,
+            "calor_especifico": 840
+        },
+        "forro_madeira_1cm": {
+            "espessura": 0.01,
+            "condutividade_termica": 0.1,
+            "densidade": 400,
+            "calor_especifico": 2300
+        },
+        "placa_cimenticia": {
+            "espessura": 0.01,
+            "condutividade_termica": 1.15,
+            "densidade": 2000,
+            "calor_especifico": 1000
+        },
+        "placa_gesso": {
+            "espessura": 0.0125,
+            "condutividade_termica": 0.35,
+            "densidade": 900,
+            "calor_especifico": 870
+        },
+        "barreira_radiante": {
+            "espessura": 0.000006,
+            "condutividade_termica": 230,
+            "densidade": 2700,
+            "calor_especifico": 880
+        },
+        "tijolo_macico_10cm": {
+            "espessura": 0.1,
+            "condutividade_termica": 1.05,
+            "densidade": 1800,
+            "calor_especifico": 920
+        },
+        "tijolo_macico_20cm": {
+            "espessura": 0.2,
+            "condutividade_termica": 1.05,
+            "densidade": 1800,
+            "calor_especifico": 920
+        },
+        "argamassa": {
+            "espessura": 0.025,
+            "condutividade_termica": 1.15,
+            "densidade": 2000,
+            "calor_especifico": 1000
+        },
+        "tijolo_vazado": {
+            "espessura": 0.013,
+            "condutividade_termica": 0.9,
+            "densidade": 1600,
+            "calor_especifico": 920
+        }
+    },
+    "componentes_construtivos": {
+        "referencia_zb1-7": {
+            "paredes_externas": {
+                "1": "concreto_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "concreto_10cm"
+            }
+        },
+        "referencia_zb8": {
+            "paredes_externas": {
+                "1": "concreto_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "resistencia_termica_zb8",
+                "4": "concreto_10cm"
+            }
+        },
+        "concreto_uni": {
+            "paredes_externas": {
+                "1": "concreto_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "forro_madeira_1cm"
+            }
+        },
+        "concreto_multi": {
+            "paredes_externas": {
+                "1": "concreto_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "concreto_10cm"
+            }
+        },
+        "steel_frame_ar_uni": {
+            "paredes_externas": {
+                "1": "placa_cimenticia",
+                "2": "camara_parede",
+                "3": "placa_gesso"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "barreira_radiante",
+                "3": "camara_baixa_emissividade",
+                "4": "la_vidro",
+                "5": "placa_gesso"
+            }
+        },
+        "steel_frame_ar_multi": {
+            "paredes_externas": {
+                "1": "placa_cimenticia",
+                "2": "camara_parede",
+                "3": "placa_gesso"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "barreira_radiante",
+                "3": "camara_baixa_emissividade",
+                "4": "la_vidro",
+                "5": "concreto_10cm"
+            }
+        },
+        "steel_frame_isolante_uni": {
+            "paredes_externas": {
+                "1": "placa_cimenticia",
+                "2": "la_vidro",
+                "3": "placa_gesso"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "barreira_radiante",
+                "3": "camara_baixa_emissividade",
+                "4": "la_vidro",
+                "5": "placa_gesso"
+            }
+        },
+        "steel_frame_isolante_multi": {
+            "paredes_externas": {
+                "1": "placa_cimenticia",
+                "2": "la_vidro",
+                "3": "placa_gesso"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "barreira_radiante",
+                "3": "camara_baixa_emissividade",
+                "4": "la_vidro",
+                "5": "concreto_10cm"
+            }
+        },
+        "tijolo_macico_10cm_uni": {
+            "paredes_externas": {
+                "1": "tijolo_macico_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "forro_madeira_1cm"
+            }
+        },
+        "tijolo_macico_10cm_multi": {
+            "paredes_externas": {
+                "1": "tijolo_macico_10cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "concreto_10cm"
+            }
+        },
+        "tijolo_macico_20cm_uni": {
+            "paredes_externas": {
+                "1": "tijolo_macico_20cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "forro_madeira_1cm"
+            }
+        },
+        "tijolo_macico_20cm_multi": {
+            "paredes_externas": {
+                "1": "tijolo_macico_20cm"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "concreto_10cm"
+            }
+        },
+        "tijolo_vazado_uni": {
+            "paredes_externas": {
+                "1": "argamassa",
+                "2": "tijolo_vazado",
+                "3": "camara_parede",
+                "4": "tijolo_vazado",
+                "5": "argamassa"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "forro_madeira_1cm"
+            }
+        },
+        "tijolo_vazado_multi": {
+            "paredes_externas": {
+                "1": "argamassa",
+                "2": "tijolo_vazado",
+                "3": "camara_parede",
+                "4": "tijolo_vazado",
+                "5": "argamassa"
+            },
+            "cobertura": {
+                "1": "telha_fibrocimento",
+                "2": "camara_cobertura",
+                "3": "concreto_10cm"
+            }
+        }
+    }
+}
