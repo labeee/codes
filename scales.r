@@ -33,34 +33,39 @@
 # load libraries ####
 invisible({
   pkgs = c('dplyr', 'ggplot2', 'stringr')
-  lapply(pkgs, library, character.only = T)
+  lapply(pkgs, library, character.only = TRUE)
 })
 
 # auxiliar functions ####
 # select cases higher than the minimum performance level
-RmLowPerf = function(df) df %>%
+RmLowPerf = function(df, dwel) {
   # df: data frame with cases
-  
-  filter(
-    phft > phft_ref & # choose only cases with phft higher than the reference
-      (t_max < t_max_ref + 1) & # choose only cases with highest temperature lower than reference
-        !((estado == 'PR' | estado == 'RS' | estado == 'SC') & (t_min < t_min_ref - 1))
-          # remove cases from zb1 to zb3 whose minimum temperature is lower than reference
-  )
+  # dwel: 'uni' or 'multi'
+  lim_sup = ifelse(dwel == 'uni', 2, 1)
+  df$t_max_min = df$t_max_ref + lim_sup
+  df$t_max_min = ifelse(df$floor == 'Cob.', df$t_max_min + 1, df$t_max_min)
+  df = df %>%
+    filter(phft > phft_ref & # choose only cases with phft higher than the reference
+             t_max < t_max_min & # choose only cases with highest temperature lower than reference
+             !((estado == 'PR' | estado == 'RS' | estado == 'SC' | estado == 'MG') &
+                 (t_min < t_min_ref - 1))) # remove cases from zb1 to zb3 whose minimum temperature
+                                             # is lower than reference
+  return(df)
+}
 # select cases with cgtt lower the reference
 RmHighCgTT = function(df) filter(df, cgtt < cgtt_ref)
   # df: data frame with cases
 
 # select cases higher than intermediary performance level
-FiltPHFT = function(df, inc) {
+FiltPHFT = function(df, dwel, inc) {
   # df: data frame with cases
   # inc: if the intermediary level depends on absolute or relative values
     # possible values: 'FALSE' (intermediary level scale depends on phft's absolute value), 'abs'
       # (the intermediary level scale depends on phft's absolute increase) and 'rel' (the
       # intermediary level depends on phft's relative increase)
   
-  df = RmLowPerf(df) # first all it selects only cases higher than minimum performance
-  if (inc == F) {
+  df = RmLowPerf(df, dwel) # first all it selects only cases higher than minimum performance
+  if (inc == FALSE) {
     df = filter(df, phft > quantile(phft, p = 0.3)) # phft's absolute value
   } else if (inc == 'abs') {
     df = filter(df, inc_phft > quantile(inc_phft, p = 0.3)) # phft's absolute increase
@@ -73,7 +78,7 @@ FiltPHFT = function(df, inc) {
 
 # create a data frame with performance level threshold for all weathers
   # this data frame will be used to plot vertical lines on histograms
-DefVertLinesDF = function(df, lvl, inc, red) {
+DefVertLinesDF = function(df, dwel, lvl, inc, red) {
   # df: data frame with cases
   # lvl: 'intermediario' or 'superior'
   # inc: if the intermediary level depends on absolute or relative values
@@ -86,8 +91,8 @@ DefVertLinesDF = function(df, lvl, inc, red) {
   if (lvl == 'intermediario') {
     # select the cases higher than minimum performance for each 'estado' and 'floor' (like a grid
       # combination) and apply the functions 'min' and 'mean' to data frames
-    vl_df = RmLowPerf(vl_df)
-    if (inc == F) {
+    vl_df = RmLowPerf(vl_df, dwel)
+    if (inc == FALSE) {
       # select cases considering phft's absolute value
       vl_df = summarise(vl_df, min = min(phft), q30 = quantile(phft, p = 0.3))
     } else {
@@ -102,8 +107,8 @@ DefVertLinesDF = function(df, lvl, inc, red) {
   } else {
     # select the cases higher than intermediary performance for each 'estado' and 'floor' and apply
       # the functions 'min' and 'mean' to data frames
-    vl_df = FiltPHFT(vl_df, inc)
-    if (red == F) {
+    vl_df = FiltPHFT(vl_df, dwel, inc)
+    if (red == FALSE) {
       # select cases considering cgtt's absolute value
       vl_df = summarise(vl_df, q30 = quantile(cgtt, p = 0.3))
     } else {
@@ -128,8 +133,8 @@ NamePlot = function(dwel, lvl, inc, red) {
   # red: FALSE, 'abs' or 'rel'
   
   plot_name = paste0(dwel, '_', lvl,
-                     ifelse(inc == F, '', paste0('_inc_', inc)),
-                     ifelse(lvl == 'intermediario', '', ifelse(red == F, '',
+                     ifelse(inc == FALSE, '', paste0('_inc_', inc)),
+                     ifelse(lvl == 'intermediario', '', ifelse(red == FALSE, '',
                                                                paste0('_red_', red))))
   return(plot_name)
 }
@@ -144,10 +149,10 @@ NameTitle = function(dwel, lvl, inc, red) {
   
   title = paste0(str_to_title(dwel), '. - Nível ', str_to_title(lvl),
                  ifelse(lvl == 'intermediario',
-                        ifelse(inc == F, '', paste0(' (Aumento ', str_to_title(inc), '.)')),
-                        paste0(ifelse(red == F, '',
+                        ifelse(inc == FALSE, '', paste0(' (Aumento ', str_to_title(inc), '.)')),
+                        paste0(ifelse(red == FALSE, '',
                                       paste0(' (Redução ', str_to_title(red), '.)')),
-                               ifelse(inc == F,
+                               ifelse(inc == FALSE,
                                       '', paste0(' [PHFT ', str_to_title(inc), '.]')))))
   return(title)
 }
@@ -202,7 +207,7 @@ FixDF = function(df, dwel, area, unit = 'kwh') {
 # statistic and plot functions ####
 # calculate scales for an specific level and weather (for each geometry and floor)
   # it's not essencial to run the code itself, but it can help somehow
-CalcStats = function(lvl, df, inc, weather) {
+CalcStats = function(lvl, df, dwel, inc, weather) {
   # lvl: 'intermediario' or 'superior'
   # df: data frame with cases
   # weather: estado
@@ -216,7 +221,7 @@ CalcStats = function(lvl, df, inc, weather) {
       # phft's increase
   if (lvl == 'intermediario') {
     summ_table = summ_table %>%
-      RmLowPerf() %>%
+      RmLowPerf(dwel) %>%
       summarize('min_phft' = min(phft),
                 'min_inc_phft' = min(inc_phft),
                 'min_inc_rel_phft' = min(inc_rel_phft),
@@ -237,7 +242,7 @@ CalcStats = function(lvl, df, inc, weather) {
       # cgtt's increase
   } else {
     summ_table = summ_table %>%
-      FiltPHFT(inc) %>%
+      FiltPHFT(dwel, inc) %>%
       summarize('min_cgtt' = min(cgtt),
                 'min_red_abs' = min(red_cgtt),
                 'min_red_rel' = min(red_rel_cgtt),
@@ -269,7 +274,7 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
   # group the data frame according to the variables 'estado' and 'floor'
   scales_tbl = group_by(df, estado, floor)
   # remove cases with performance lower than reference
-  inter_tbl = RmLowPerf(scales_tbl)
+  inter_tbl = RmLowPerf(scales_tbl, dwel)
   # calculate the intermediary performance threshold
   if (inc == FALSE) {
     inter_tbl = inter_tbl %>%
@@ -285,7 +290,7 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
       as.data.frame()
   }
   # calculate the superior performance threshold
-  sup_tbl = FiltPHFT(scales_tbl, inc)
+  sup_tbl = FiltPHFT(scales_tbl, dwel, inc)
   if (red == FALSE) {
     sup_tbl = sup_tbl %>%
       summarize('CgTT' = quantile(cgtt, p = 0.3)) %>% # using absolute value of cgtt
@@ -311,8 +316,8 @@ GenScales <- function(df, dwel, inc, red, save_table, output_dir) {
   }
   # write or return the result
   if (save_table) { # saves a '.csv' file in the output directory
-    write.csv(scales_tbl, file = paste0(output_dir, dwel, '_inc_', inc,
-                                        '_red_', red, '_scales.csv'))
+    write.csv(scales_tbl, row.names = FALSE,
+              file = paste0(output_dir, dwel, '_inc_', inc, '_red_', red, '_scales.csv'))
   } else { # return result into a variable
     return(scales_tbl)
   }
@@ -352,7 +357,7 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
     # histograms depends on the full cases data frame (for each weather)
     # vertical lines are plotted according to the 'inc' argument (FALSE, 'abs' or 'rel')
   if (lvl == 'intermediario') {
-    vl_df = DefVertLinesDF(df, lvl, inc) # call the function and create a vertical line data frame
+    vl_df = DefVertLinesDF(df, dwel, lvl, inc) # call the function and create a vertical line data frame
     if (inc == F) { # here 'inc' == FALSE, thus it considered the absolute value of phft
       # add histogram with all the cases
       plot = plot + geom_histogram(aes(x = phft, colour = geometria, fill = min)) +
@@ -395,8 +400,8 @@ PlotHist = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
       geom_text(data = vl_df, aes(x = q30, y = Inf, vjust = 2,
                                   label = '     I->', fontface = 'bold'))
   } else {
-    vl_df = DefVertLinesDF(df, lvl, inc, red) # call the function and create a vertical line data frame
-    if (red == F) { # here 'red' == FALSE, thus it considered the absolute value of cgtt
+    vl_df = DefVertLinesDF(df, dwel, lvl, inc, red) # call the function and create a vertical line data frame
+    if (red == FALSE) { # here 'red' == FALSE, thus it considered the absolute value of cgtt
       # add histogram with all the cases
       plot = plot + geom_histogram(aes(x = cgtt, colour = geometria),
                                    alpha = 0.5, fill = 'white') +
@@ -466,8 +471,8 @@ PlotBP = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   if (lvl == 'intermediario') {
     # the minimum performance thresholds are calculate for each 'estado' and 'floor' (like a grid)
       # and the cases with performance lower than minimum are removed from the plot
-    plot = ggplot(data = RmLowPerf(group_by(df, estado, floor)))
-    if (inc == F) { # here 'inc' == FALSE, thus it considered the absolute value of phft
+    plot = ggplot(data = RmLowPerf(group_by(df, estado, floor), dwel))
+    if (inc == FALSE) { # here 'inc' == FALSE, thus it considered the absolute value of phft
       # add box plots
       plot = plot +
         geom_boxplot(aes(x = geometria, y = phft, fill = geometria)) +
@@ -486,8 +491,8 @@ PlotBP = function(lvl, df, dwel, inc, red, save_plot, lx, ly, output_dir) {
   } else {
     # the intermediary performance thresholds are calculate for each 'estado' and 'floor' (like a
       # grid) and the cases with performance lower than intermediary are removed from the plot
-    plot = ggplot(data = FiltPHFT(group_by(df, estado, floor), inc))
-    if (red == F) { # here 'red' == FALSE, thus it considered the absolute value of cgtt
+    plot = ggplot(data = FiltPHFT(group_by(df, estado, floor), dwel, inc))
+    if (red == FALSE) { # here 'red' == FALSE, thus it considered the absolute value of cgtt
       # add box plots
       plot = plot +
         geom_boxplot(aes(x = geometria, y = cgtt, fill = geometria)) +
@@ -610,7 +615,7 @@ DefStats = function(weather, df, dwel, inc, red, save_table,
   item = vector('list', length = 2)
   names = c('intermediario', 'superior')
   # apply 'CalcStats' function for all the weathers
-  item = lapply(names, CalcStats, df, inc, weather)
+  item = lapply(names, CalcStats, df, dwel, inc, weather)
   names(item) = names
   return(item)
 }
@@ -648,7 +653,7 @@ load('/home/rodox/git/nbr/outputs.rdata')
 dfs_list = lapply(dfs_list, ShrinkGeom)
 # apply 'FixDF' function for 'uni' and 'multi' (see function above)
 dfs_list = mapply(FixDF, dfs_list, names(dfs_list),
-                  list(38.58, c(34.72, 33.81)), SIMPLIFY = F)
+                  list(38.58, c(34.72, 33.81)), SIMPLIFY = FALSE)
 area_uni = dfs_list$uni$area
 area_multi = dfs_list$multi$area
 # create empty list ('scales') to return values of 'CreateScales' function
@@ -656,7 +661,7 @@ scales = vector('list', length = length(dfs_list))
 # name list items as 'uni' and 'multi'
 names(scales) = names(dfs_list)
 # apply 'CreateScales' function for 'uni' and 'multi' (see function above)
-scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = F,
-                MoreArgs = list(inc = 'abs', red = 'rel', save_table = T,
-                                save_plot = T, lx = 33.8, ly = 19,
-                                output_dir = '~/git/nbr/plot_table/q30/'))
+scales = mapply(CreateScales, scales, dfs_list, names(scales), SIMPLIFY = FALSE,
+                MoreArgs = list(inc = 'abs', red = 'rel', save_table = TRUE,
+                                save_plot = TRUE, lx = 33.8, ly = 19,
+                                output_dir = '~/Downloads/test/'))
