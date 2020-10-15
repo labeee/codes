@@ -1,0 +1,840 @@
+{
+  "AirflowNetwork:MultiZone:Component:DetailedOpening": {
+    "window_opening": {
+      "air_mass_flow_coefficient_when_opening_is_closed": 0.00028,
+      "air_mass_flow_exponent_when_opening_is_closed": 0.63,
+      "discharge_coefficient_for_opening_factor_1": 0.001,
+      "discharge_coefficient_for_opening_factor_2": 0.65,
+      "extra_crack_length_or_height_of_pivoting_axis": 0,
+      "height_factor_for_opening_factor_1": 1,
+      "height_factor_for_opening_factor_2": 1,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 16,
+      "number_of_sets_of_opening_factor_data": 2,
+      "opening_factor_1": 0,
+      "opening_factor_2": 1,
+      "start_height_factor_for_opening_factor_1": 0,
+      "start_height_factor_for_opening_factor_2": 0,
+      "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
+      "width_factor_for_opening_factor_1": 0,
+      "width_factor_for_opening_factor_2": 0.45
+    },
+    "door_opening": {
+      "air_mass_flow_coefficient_when_opening_is_closed": 0.0024,
+      "air_mass_flow_exponent_when_opening_is_closed": 0.59,
+      "discharge_coefficient_for_opening_factor_1": 0.001,
+      "discharge_coefficient_for_opening_factor_2": 0.65,
+      "extra_crack_length_or_height_of_pivoting_axis": 0,
+      "height_factor_for_opening_factor_1": 1,
+      "height_factor_for_opening_factor_2": 1,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 16,
+      "number_of_sets_of_opening_factor_data": 2,
+      "opening_factor_1": 0,
+      "opening_factor_2": 1,
+      "start_height_factor_for_opening_factor_1": 0,
+      "start_height_factor_for_opening_factor_2": 0,
+      "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
+      "width_factor_for_opening_factor_1": 0,
+      "width_factor_for_opening_factor_2": 1
+    },
+    "bwc_opening": {
+      "air_mass_flow_coefficient_when_opening_is_closed": 0.00028,
+      "air_mass_flow_exponent_when_opening_is_closed": 0.63,
+      "discharge_coefficient_for_opening_factor_1": 0.001,
+      "discharge_coefficient_for_opening_factor_2": 0.65,
+      "extra_crack_length_or_height_of_pivoting_axis": 0,
+      "height_factor_for_opening_factor_1": 0,
+      "height_factor_for_opening_factor_2": 0.8,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 16,
+      "number_of_sets_of_opening_factor_data": 2,
+      "opening_factor_1": 0,
+      "opening_factor_2": 1,
+      "start_height_factor_for_opening_factor_1": 0,
+      "start_height_factor_for_opening_factor_2": 0,
+      "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
+      "width_factor_for_opening_factor_1": 1,
+      "width_factor_for_opening_factor_2": 1
+    },
+    "balcony_opening": {
+      "air_mass_flow_coefficient_when_opening_is_closed": 0.0024,
+      "air_mass_flow_exponent_when_opening_is_closed": 0.59,
+      "discharge_coefficient_for_opening_factor_1": 0.001,
+      "discharge_coefficient_for_opening_factor_2": 0.65,
+      "extra_crack_length_or_height_of_pivoting_axis": 0,
+      "height_factor_for_opening_factor_1": 1,
+      "height_factor_for_opening_factor_2": 1,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 16,
+      "number_of_sets_of_opening_factor_data": 2,
+      "opening_factor_1": 0,
+      "opening_factor_2": 1,
+      "start_height_factor_for_opening_factor_1": 0,
+      "start_height_factor_for_opening_factor_2": 0,
+      "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
+      "width_factor_for_opening_factor_1": 0,
+      "width_factor_for_opening_factor_2": 0.45
+    }
+  },
+  "AirflowNetwork:SimulationControl": {
+    "afn_control": {
+      "absolute_airflow_convergence_tolerance": 1e-06,
+      "airflownetwork_control": "MultizoneWithoutDistribution",
+      "azimuth_angle_of_long_axis_of_building": 90,
+      "building_type": "LowRise",
+      "convergence_acceleration_limit": -0.5,
+      "height_selection_for_local_wind_pressure_calculation": "OpeningHeight",
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 12,
+      "initialization_type": "LinearInitializationMethod",
+      "maximum_number_of_iterations": 500,
+      "ratio_of_building_width_along_short_axis_to_width_along_long_axis": 0.5,
+      "relative_airflow_convergence_tolerance": 0.0001,
+      "wind_pressure_coefficient_type": "SurfaceAverageCalculation"
+    }
+  },
+  "Building": {
+    "model": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 8,
+      "loads_convergence_tolerance_value": 0.04,
+      "maximum_number_of_warmup_days": 25,
+      "minimum_number_of_warmup_days": 6,
+      "north_axis": 0,
+      "solar_distribution": "FullExteriorWithReflections",
+      "temperature_convergence_tolerance_value": 0.4,
+      "terrain": "City"
+    }
+  },
+  "Construction": {
+    "slab": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "outside_layer": "concreto_10cm_0.5",
+      "layer_2": "contrapiso",
+      "layer_3": "piso_ceramico_0.7"
+    },
+    "door_3cm": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "outside_layer": "porta_madeira_3cm_0.5"
+    },
+    "simple_window": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "outside_layer": "vidro"
+    }
+  },
+  "GlobalGeometryRules": {
+    "geom_rules": {
+      "coordinate_system": "Relative",
+      "daylighting_reference_point_coordinate_system": "Relative",
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "rectangular_surface_coordinate_system": "Relative",
+      "starting_vertex_position": "UpperLeftCorner",
+      "vertex_entry_direction": "Counterclockwise"
+    }
+  },
+  "Material": {
+    "argamassa": {
+      "conductivity": 1.15,
+      "density": 2000,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumRough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.025,
+      "visible_absorptance": 0.5
+    },
+    "argamassa_0.5": {
+      "conductivity": 1.15,
+      "density": 2000,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumRough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.025,
+      "visible_absorptance": 0.5
+    },
+    "concreto_10cm": {
+      "conductivity": 1.75,
+      "density": 2200,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.1,
+      "visible_absorptance": 0.5
+    },
+    "concreto_10cm_0.5": {
+      "conductivity": 1.75,
+      "density": 2200,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.1,
+      "visible_absorptance": 0.5
+    },
+    "concreto_20cm": {
+      "conductivity": 1.75,
+      "density": 2200,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.2,
+      "visible_absorptance": 0.5
+    },
+    "contrapiso": {
+      "conductivity": 1.15,
+      "density": 2000,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumRough",
+      "solar_absorptance": 0.7,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.02,
+      "visible_absorptance": 0.7
+    },
+    "telha_fibrocimento": {
+      "conductivity": 0.65,
+      "density": 1700,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumRough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 840,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.008,
+      "visible_absorptance": 0.5
+    },
+    "piso_ceramico_0.7": {
+      "conductivity": 1.05,
+      "density": 2000,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Smooth",
+      "solar_absorptance": 0.7,
+      "specific_heat": 920,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.0075,
+      "visible_absorptance": 0.7
+    },
+    "porta_madeira_3cm_0.5": {
+      "conductivity": 0.15,
+      "density": 650,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumSmooth",
+      "solar_absorptance": 0.5,
+      "specific_heat": 2300,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.03,
+      "visible_absorptance": 0.5
+    },
+    "tijolo_9x19x19": {
+      "conductivity": 0.9,
+      "density": 1600,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.7,
+      "specific_heat": 920,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.013,
+      "visible_absorptance": 0.7
+    },
+    "tijolo_macico_10cm": {
+      "conductivity": 1.05,
+      "density": 1800,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.7,
+      "specific_heat": 920,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.1,
+      "visible_absorptance": 0.5
+    },
+    "tijolo_macico_10cm_0.5": {
+      "conductivity": 1.05,
+      "density": 1800,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 920,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.1,
+      "visible_absorptance": 0.5
+    },
+    "tijolo_macico_20cm": {
+      "conductivity": 1.05,
+      "density": 1800,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Rough",
+      "solar_absorptance": 0.5,
+      "specific_heat": 920,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.2,
+      "visible_absorptance": 0.5
+    },
+    "placa_cimenticia": {
+      "conductivity": 1.15,
+      "density": 2000,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "MediumSmooth",
+      "solar_absorptance": 0.5,
+      "specific_heat": 1000,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.01,
+      "visible_absorptance": 0.5
+    },
+    "gesso_0.5": {
+      "conductivity": 0.35,
+      "density": 900,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 9,
+      "roughness": "Smooth",
+      "solar_absorptance": 0.5,
+      "specific_heat": 870,
+      "thermal_absorptance": 0.9,
+      "thickness": 0.0125,
+      "visible_absorptance": 0.5
+    }
+  },
+  "Material:AirGap": {
+    "camara_cobertura": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "thermal_resistance": 0.21
+    },
+    "camara_parede": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "thermal_resistance": 0.17
+    }
+  },
+  "Material:NoMass": {
+    "eps_4cm": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 6,
+      "roughness": "MediumSmooth",
+      "thermal_resistance": 1,
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7
+    },
+    "la_vidro_5cm": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 6,
+      "roughness": "Smooth",
+      "thermal_resistance": 1.25,
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7
+    },
+    "la_vidro_2.5cm": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 6,
+      "roughness": "MediumSmooth",
+      "thermal_resistance": 0.67,
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7
+    }
+  },
+  "Output:Diagnostics": {
+    "diagnostics": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "key_1": "DisplayAllWarnings",
+      "key_2": "DisplayExtraWarnings"
+    }
+  },
+  "Output:Surfaces:Drawing": {
+    "drawing": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "report_specifications_1": "ThickPolyline",
+      "report_type": "DXF"
+    }
+  },
+  "Output:VariableDictionary": {
+    "idf_dic": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 1,
+      "key_field": "IDF"
+    },
+    "regular_dic": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 1,
+      "key_field": "regular"
+    }
+  },
+  "RunPeriod": {
+    "year": {
+      "apply_weekend_holiday_rule": "No",
+      "begin_day_of_month": 1,
+      "begin_month": 1,
+      "day_of_week_for_start_day": "Monday",
+      "end_day_of_month": 31,
+      "end_month": 12,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 13,
+      "use_weather_file_daylight_saving_period": "No",
+      "use_weather_file_holidays_and_special_days": "No",
+      "use_weather_file_rain_indicators": "No",
+      "use_weather_file_snow_indicators": "No"
+    }
+  },
+  "Schedule:Compact": {
+    "sch_window_behav": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 19
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_temp"
+    },
+    "sch_afn_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 14:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 0
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_on_off"
+    },
+    "sch_afn_dorm": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 08:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 1
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_on_off"
+    },
+    "sch_activ_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For:AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 108
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_activ"
+    },
+    "sch_activ_dorm": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For:AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 81
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_activ"
+    },
+    "sch_equip_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For:AllDays"
+        },
+        {
+          "field": "Until: 14:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 0
+        }
+      ],
+      "idf_max_extensible_fields": 8,
+      "idf_max_fields": 10,
+      "schedule_type_limits_name": "sch_lim_fracao"
+    },
+    "sch_ilum_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 16:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 0
+        }
+      ],
+      "idf_max_extensible_fields": 8,
+      "idf_max_fields": 10,
+      "schedule_type_limits_name": "sch_lim_fracao"
+    },
+    "sch_ilum_dorm": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 06:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 08:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 1
+        }
+      ],
+      "idf_max_extensible_fields": 8,
+      "idf_max_fields": 10,
+      "schedule_type_limits_name": "sch_lim_fracao"
+    },
+    "sch_occup_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 14:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 18:00"
+        },
+        {
+          "field": 0.5
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 0
+        }
+      ],
+      "idf_max_extensible_fields": 10,
+      "idf_max_fields": 12,
+      "schedule_type_limits_name": "sch_lim_fracao"
+    },
+    "sch_occup_dorm": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 08:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until 24:00"
+        },
+        {
+          "field": 1
+        }
+      ],
+      "idf_max_extensible_fields": 10,
+      "idf_max_fields": 12,
+      "schedule_type_limits_name": "sch_lim_fracao"
+    }
+  },
+  "ScheduleTypeLimits": {
+    "sch_lim_fracao": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "lower_limit_value": 0,
+      "numeric_type": "Continuous",
+      "unit_type": "Percent",
+      "upper_limit_value": 1
+    },
+    "sch_lim_temp": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "lower_limit_value": 0,
+      "numeric_type": "Continuous",
+      "unit_type": "Temperature",
+      "upper_limit_value": 50
+    },
+    "sch_lim_activ": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "lower_limit_value": 0,
+      "numeric_type": "Continuous",
+      "unit_type": "ActivityLevel",
+      "upper_limit_value": 1000
+    },
+    "sch_lim_on_off": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "lower_limit_value": 0,
+      "numeric_type": "Discrete",
+      "unit_type": "Control",
+      "upper_limit_value": 1
+    }
+  },
+  "SimulationControl": {
+    "sim_control": {
+      "do_plant_sizing_calculation": "No",
+      "do_system_sizing_calculation": "No",
+      "do_zone_sizing_calculation": "No",
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 5,
+      "run_simulation_for_sizing_periods": "No",
+      "run_simulation_for_weather_file_run_periods": "Yes"
+    }
+  },
+  "Timestep": {
+    "timesteps": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 1,
+      "number_of_timesteps_per_hour": 6
+    }
+  },
+  "Version": {
+    "version": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 1,
+      "version_identifier": "9.0"
+    }
+  },
+  "WindowMaterial:SimpleGlazingSystem": {
+    "vidro": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 3,
+      "solar_heat_gain_coefficient": 0.87,
+      "u_factor": 5.7
+    }
+  },
+  "WindowMaterial:Blind": {
+    "veneziana_madeira": {
+      "back_side_slat_beam_solar_reflectance": 0.8,
+      "back_side_slat_beam_visible_reflectance": 0.8,
+      "back_side_slat_diffuse_solar_reflectance": 0.8,
+      "back_side_slat_diffuse_visible_reflectance": 0.8,
+      "back_side_slat_infrared_hemispherical_emissivity": 0.9,
+      "blind_bottom_opening_multiplier": 0,
+      "blind_left_side_opening_multiplier": 0,
+      "blind_right_side_opening_multiplier": 0,
+      "blind_to_glass_distance": 0.05,
+      "blind_top_opening_multiplier": 0,
+      "front_side_slat_beam_solar_reflectance": 0.8,
+      "front_side_slat_beam_visible_reflectance": 0.8,
+      "front_side_slat_diffuse_solar_reflectance": 0.8,
+      "front_side_slat_diffuse_visible_reflectance": 0.8,
+      "front_side_slat_infrared_hemispherical_emissivity": 0.9,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 29,
+      "maximum_slat_angle": 0,
+      "minimum_slat_angle": 0,
+      "slat_angle": 45,
+      "slat_beam_solar_transmittance": 0,
+      "slat_beam_visible_transmittance": 0,
+      "slat_conductivity": 0.29,
+      "slat_diffuse_solar_transmittance": 0,
+      "slat_diffuse_visible_transmittance": 0,
+      "slat_infrared_hemispherical_transmittance": 0,
+      "slat_orientation": "Horizontal",
+      "slat_separation": 0.03,
+      "slat_thickness": 0.0042,
+      "slat_width": 0.05
+    }
+  },
+  "Site:GroundDomain:Slab": {
+    "ground_domain": {
+      "aspect_ratio": 1,
+      "evapotranspiration_ground_cover_parameter": 0.4,
+      "geometric_mesh_coefficient": 1.6,
+      "ground_domain_depth": 10,
+      "horizontal_insulation": "No",
+      "horizontal_insulation_extents": "Full",
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 25,
+      "mesh_density_parameter": 6,
+      "perimeter_offset": 5,
+      "simulation_timestep": "Timestep",
+      "slab_boundary_condition_model_name": "ground_coupled_oscm",
+      "slab_location": "OnGrade",
+      "soil_density": 1250,
+      "soil_moisture_content_volume_fraction": 30,
+      "soil_moisture_content_volume_fraction_at_saturation": 50,
+      "soil_specific_heat": 1500,
+      "soil_thermal_conductivity": 1.5,
+      "undisturbed_ground_temperature_model_name": "finite_diff",
+      "undisturbed_ground_temperature_model_type": "Site:GroundTemperature:Undisturbed:FiniteDifference",
+      "vertical_insulation": "No"
+    }
+  },
+  "Site:GroundTemperature:Undisturbed:FiniteDifference": {
+    "finite_diff": {
+      "evapotranspiration_ground_cover_parameter": 0.4,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 7,
+      "soil_density": 1250,
+      "soil_moisture_content_volume_fraction": 30,
+      "soil_moisture_content_volume_fraction_at_saturation": 50,
+      "soil_specific_heat": 1500,
+      "soil_thermal_conductivity": 1.5
+    }
+  },
+  "SurfaceProperty:OtherSideConditionsModel": {
+    "ground_coupled_oscm": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 2,
+      "type_of_modeling": "GroundCoupledSurface"
+    }
+  }
+}
