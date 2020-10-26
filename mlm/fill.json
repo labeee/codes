@@ -80,5 +80,54 @@
             "key_value": "*",
             "reporting_frequency": "Timestep"
         }
+    },
+    "ZoneControl:Thermostat": {
+        "item": {
+            "control_1_name": "thermostat_dual_setpoint_control",
+            "control_1_object_type": "ThermostatSetpoint:DualSetpoint",
+            "control_type_schedule_name": "sch_setpoint_4",
+            "idf_max_extensible_fields": 0,
+            "idf_max_fields": 5
+        }
+    },
+    "ZoneHVAC:IdealLoadsAirSystem": {
+        "item": {
+            "cooling_limit": "NoLimit",
+            "cooling_sensible_heat_ratio": 0.7,
+            "dehumidification_control_type": "None",
+            "demand_controlled_ventilation_type": "None",
+            "heat_recovery_type": "None",
+            "heating_limit": "NoLimit",
+            "humidification_control_type": "None",
+            "idf_max_extensible_fields": 0,
+            "idf_max_fields": 27,
+            "latent_heat_recovery_effectiveness": 0.65,
+            "maximum_heating_supply_air_humidity_ratio": 0.0156,
+            "maximum_heating_supply_air_temperature": 50,
+            "minimum_cooling_supply_air_humidity_ratio": 0.0077,
+            "minimum_cooling_supply_air_temperature": 13,
+            "outdoor_air_economizer_type": "NoEconomizer",
+            "sensible_heat_recovery_effectiveness": 0.7
+        }
+    },
+    "ZoneHVAC:EquipmentList": {
+        "item": {
+            "equipment": [
+                {
+                    "zone_equipment_cooling_sequence": 1,
+                    "zone_equipment_heating_or_no_load_sequence": 1,
+                    "zone_equipment_object_type": "ZoneHVAC:IdealLoadsAirSystem"
+                }
+            ],
+            "idf_max_extensible_fields": 4,
+            "idf_max_fields": 6,
+            "load_distribution_scheme": "SequentialLoad"
+        }
+    },
+    "ZoneHVAC:EquipmentConnections": {
+        "item": {
+            "idf_max_extensible_fields": 0,
+            "idf_max_fields": 6
+        }
     }
 }

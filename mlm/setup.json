@@ -56,25 +56,6 @@
       "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
       "width_factor_for_opening_factor_1": 1,
       "width_factor_for_opening_factor_2": 1
-    },
-    "balcony_opening": {
-      "air_mass_flow_coefficient_when_opening_is_closed": 0.0024,
-      "air_mass_flow_exponent_when_opening_is_closed": 0.59,
-      "discharge_coefficient_for_opening_factor_1": 0.001,
-      "discharge_coefficient_for_opening_factor_2": 0.65,
-      "extra_crack_length_or_height_of_pivoting_axis": 0,
-      "height_factor_for_opening_factor_1": 1,
-      "height_factor_for_opening_factor_2": 1,
-      "idf_max_extensible_fields": 0,
-      "idf_max_fields": 16,
-      "number_of_sets_of_opening_factor_data": 2,
-      "opening_factor_1": 0,
-      "opening_factor_2": 1,
-      "start_height_factor_for_opening_factor_1": 0,
-      "start_height_factor_for_opening_factor_2": 0,
-      "type_of_rectangular_large_vertical_opening_lvo_": "NonPivoted",
-      "width_factor_for_opening_factor_1": 0,
-      "width_factor_for_opening_factor_2": 0.45
     }
   },
   "AirflowNetwork:SimulationControl": {
@@ -486,6 +467,125 @@
       "idf_max_fields": 6,
       "schedule_type_limits_name": "sch_lim_on_off"
     },
+    "sch_hvac_liv": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 14:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 0
+        }
+      ],
+      "idf_max_extensible_fields": 8,
+      "idf_max_fields": 10,
+      "schedule_type_limits_name": "sch_lim_on_off"
+    },
+    "sch_hvac_dorm": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 08:00"
+        },
+        {
+          "field": 1
+        },
+        {
+          "field": "Until: 22:00"
+        },
+        {
+          "field": 0
+        },
+        {
+          "field": "Until 24:00"
+        },
+        {
+          "field": 1
+        }
+      ],
+      "idf_max_extensible_fields": 8,
+      "idf_max_fields": 10,
+      "schedule_type_limits_name": "sch_lim_on_off"
+    },
+    "sch_setpoint_4": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 4
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_any"
+    },
+    "sch_setpoint_21": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 21
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_any"
+    },
+    "sch_setpoint_23": {
+      "data": [
+        {
+          "field": "Through: 12/31"
+        },
+        {
+          "field": "For: AllDays"
+        },
+        {
+          "field": "Until: 24:00"
+        },
+        {
+          "field": 23
+        }
+      ],
+      "idf_max_extensible_fields": 4,
+      "idf_max_fields": 6,
+      "schedule_type_limits_name": "sch_lim_any"
+    },
     "sch_activ_liv": {
       "data": [
         {
@@ -724,6 +824,10 @@
       "numeric_type": "Discrete",
       "unit_type": "Control",
       "upper_limit_value": 1
+    },
+    "sch_lim_any": {
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 1
     }
   },
   "SimulationControl": {
@@ -865,6 +969,14 @@
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 2,
       "type_of_modeling": "GroundCoupledSurface"
+    }
+  },
+  "ThermostatSetpoint:DualSetpoint": {
+    "thermostat_dual_setpoint_control": {
+      "cooling_setpoint_temperature_schedule_name": "sch_setpoint_23",
+      "heating_setpoint_temperature_schedule_name": "sch_setpoint_21",
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 3
     }
   }
 }

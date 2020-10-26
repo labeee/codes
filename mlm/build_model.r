@@ -1,3 +1,8 @@
+library(dplyr)
+library(jsonlite)
+library(purrr)
+library(stringr)
+
 # base functions ####
 # airflow network zones
 AddAFNZone = function(tag, fill) AddFields(fill$item, 'zone_name', tag)
@@ -7,38 +12,52 @@ AddAFNSurf = function(object, tag, storey, index, fill) {
              'idf_max_fields', 'ventilation_control_mode')
   # surface_name = surface name with storey prefix
   values = RnmStorey(tag, storey, index)
-  if (object$surface_type == 'Window') { # if fenestration is a window
-    if (grepl('bwc', tag)) { # if it's a bwc window
-      # leakage_component_name = bwc_opening
-      # vetilation_control_mode = Constant
-      values = append(values, list('bwc_opening', 7, 'Constant'))
-    } else { # if it's a living room or dormitory
-      fields = append(fields, c('venting_availability_schedule_name',
-                                'ventilation_control_zone_temperature_setpoint_schedule_name'))
-      # leakage_component_name = balcony_opening or window_opening
-      bhv = ifelse(grepl('balc', tag), 'balcony_opening', 'window_opening')
-      sch = ifelse(grepl('liv', tag), 'sch_afn_liv', 'sch_afn_dorm')
-      # venting_availability_schedule_name = Temperature
-      # ventilation_control_zone_temperature_setpoint_schedule_name = sch_window_behav
-      values = append(values, list(bhv, 9, 'Temperature', sch, 'sch_window_behav'))
+  if (cond == 'afn') { # if it's a natural ventilation model
+    if (object$surface_type == 'Window') { # if fenestration is a window
+      if (grepl('bwc', tag)) { # if it's a bwc window
+        # leakage_component_name = bwc_opening
+        # vetilation_control_mode = Constant
+        values = append(values, list('bwc_opening', 7, 'Constant'))
+      } else { # if it's a living room or dormitory
+        fields = append(fields, c('venting_availability_schedule_name',
+                                  'ventilation_control_zone_temperature_setpoint_schedule_name'))
+        # leakage_component_name = window_opening
+        sch = ifelse(grepl('liv', tag), 'sch_afn_liv', 'sch_afn_dorm')
+        # venting_availability_schedule_name = Temperature
+        # ventilation_control_zone_temperature_setpoint_schedule_name = sch_window_behav
+        values = append(values, list('window_opening', 9, 'Temperature', sch, 'sch_window_behav'))
+      }
+    } else if (object$surface_type == 'Door') { # if fenestration is a door
+      # leakage_component_name = door_opening
+      values = append(values, list('door_opening', 7))
+      if (grepl('bwc|core', tag)) { # if it's a bwc door
+        # vetilation_control_mode = NoVent
+        values = append(values, 'NoVent')
+      } else if (grepl('dorm', tag) &  # if it's a door between living room and dormitory
+                 !grepl('bwc|core', object$outside_boundary_condition_object)) {
+        # vetilation_control_mode = Constant
+        values = append(values, 'Constant')
+      } else { # if the door is repeated
+        # the airflow network surface is not considered twice, thus the value is removed (NULL)
+        values = NULL
+      }
+    } else {  # if fenestration is not a door or a window
+      stop('Not recognized fenestration type!')
     }
-  } else if (object$surface_type == 'Door') { # if fenestration is a door
-    # leakage_component_name = door_opening
-    values = append(values, list('door_opening', 7))
-    if (grepl('bwc|core', tag)) { # if it's a bwc door
-      # vetilation_control_mode = NoVent
-      values = append(values, 'NoVent')
-    } else if (grepl('dorm', tag) &  # if it's a door between living room and dormitory
-               !grepl('bwc|core', object$outside_boundary_condition_object)) {
-      # vetilation_control_mode = Constant
-      values = append(values, 'Constant')
-    } else { # if the door is repeated
-      # the airflow network surface is not considered twice, thus the value is removed (NULL)
-      values = NULL
+  } else if (cond == 'hvac') { # if it's an air conditioned model
+    # avoid doubled afn doors
+    lkg = ifelse(object$surface_type == 'Door', 'door_opening', 'window_opening')
+    values = append(values, list(lkg, 7, 'NoVent'))
+    if (object$surface_type == 'Door') {
+      if (!(grepl('dorm|bwc|core', tag) &
+            !grepl('bwc|core', object$outside_boundary_condition_object))) {
+        values = NULL
+      }
     }
-  } else {  # if fenestration is not a door or a window
-    stop ('Not recognized fenestration type!')
+  } else {
+    stop('Not recognized conditioning type!')
   }
+  # add fields
   if (!is.null(values)) { # if it's not a repeated door
     # fill the fields with the values
     surf = AddFields(fill$item, fields, values)
@@ -57,6 +76,28 @@ AddFields = function(object, fields, values) {
   tags = names(object)
   object = append(object, mapply(function(x, y) x = y, fields, values, SIMPLIFY = FALSE))
   names(object) = c(tags, fields)
+  return(object)
+}
+# add ideal loads (hvac system)
+AddHVAC = function(tag, type, fill) {
+  if (type == 'hvac') {
+    fields = c('availability_schedule_name', 'zone_supply_air_node_name')
+    room = str_extract(tag, 'liv|dorm')
+    values = c(paste0('sch_hvac_', room), paste0('hvac_supply_inlet_', tag))
+    object = AddFields(fill$item, fields, values)
+  } else if (type == 'equip') {
+    object = fill$item
+    object$equipment[[1]] = AddFields(object$equipment[[1]],
+                                      'zone_equipment_name', paste0('hvac_', tag))
+  } else if (type == 'equip_conn') {
+    fields = c('zone_air_inlet_node_or_nodelist_name', 'zone_air_node_name',
+               'zone_conditioning_equipment_list_name', 'zone_name',
+               'zone_return_air_node_or_nodelist_name')
+    values = paste0(c('hvac_supply_inlet_', 'air_node_', 'equip_', '', 'return_outlet_'), tag)
+    object = AddFields(fill$item, fields, values)
+  } else {
+    stop('Not recognized equipment type!')
+  }
   return(object)
 }
 # add internal loads
@@ -84,6 +125,8 @@ AddOutputs = function(outputs, fill) {
   field = 'variable_name'
   options = list('mean_temp' = 'Zone Mean Air Temperature',
                  'op_temp' = 'Zone Operative Temperature',
+                 'ideal_loads' = c('Zone Ideal Loads Zone Total Cooling Energy',
+                                   'Zone Ideal Loads Zone Total Heating Energy'),
                  'air_change' = 'AFN Zone Infiltration Air Change Rate',
                  'therm_bal' = c('Surface Inside Face Convection Heat Gain Energy',
                                  'AFN Zone Infiltration Sensible Heat Gain Energy',
@@ -95,6 +138,12 @@ AddOutputs = function(outputs, fill) {
   names(outputs) = paste0('output', 1:length(outputs))
   return(outputs)
 }
+# add thermostats
+AddThermostats = function(tags, fill) {
+  objects = lapply(tags, function(x, y) append(y, c(zone_or_zonelist_name = x)), fill$item)
+  names(objects) = paste0('thermostat_', tags)
+  return(objects)
+}
 # create zone lists for living rooms and dormitories
 AddZoneList = function(room, tags, fill) {
   tags = tags[grep(room, tags)]
@@ -104,7 +153,7 @@ AddZoneList = function(room, tags, fill) {
   list$zones = lapply(tags, function(x, y) append(y, list('zone_name' = x)), list$zones)
   return(list)
 }
-# apply AddAFNSurf for all fenestrations
+# apply AddAFNSurf() for all fenestrations
 ApplyAFNSurfs = function(storey, index, objects, tags) {
   surfs = mapply(AddAFNSurf, objects, tags, storey, index, SIMPLIFY = FALSE,
                  MoreArgs = list(fill$'AirflowNetwork:MultiZone:Surface'))
@@ -114,21 +163,28 @@ ApplyAFNSurfs = function(storey, index, objects, tags) {
   names(surfs) = tags
   return(surfs)
 }
-# apply DefBuildSurf for all surfaces
+# apply DefBuildSurf() for all surfaces
 ApplyBounds = function(storey, index, objects, tags, boundary) {
   surfs = mapply(DefBuildSurf, objects, tags, storey, index, boundary, SIMPLIFY = FALSE)
   tags = RnmStorey(names(surfs), storey, index)
   names(surfs) = tags
   return(surfs)
 }
-# apply DefFen for all fenestrations
+# apply DefFen() for all fenestrations
 ApplyFens = function(storey, index, objects, tags) {
   surfs = mapply(DefFen, objects, storey, index, SIMPLIFY = FALSE)
   tags = RnmStorey(tags, storey, index)
   names(surfs) = tags
   return(surfs)
 }
-# apply AddIntLoad for all lists of zones
+# apply AddHVAC() for all types of objects
+ApplyHVAC = function(type, fill, tags) {
+  rooms = tags[grepl('liv|dorm', tags)]
+  objects = lapply(rooms, AddHVAC, type, fill)
+  names(objects) = paste0(type, '_', rooms)
+  return(objects)
+}
+# apply AddIntLoad() for all lists of zones
 ApplyIntLoads = function(type, fill, tags) {
   if (type == 'equip') {
     tags = tags[grep('liv', tags)]
@@ -408,7 +464,7 @@ TagBoundSurf = function(tag) {
 # main function ####
 BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
                       shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
-                      blind, balcony, mirror, model_path, outputs, construction, fill,
+                      blind, balcony, mirror, cond, model_path, outputs, construction, fill,
                       setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
   # seed_path: seed file path
   # area: sum of the long occupancy rooms (living rooms and dormitories) [30 ~ 150]
@@ -511,6 +567,15 @@ BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_w
   model$'Material'[[outside_layer_wall]]$'solar_absorptance' = abs_wall
   outside_layer_roof = model$'Construction'$'roof'$'outside_layer'
   model$'Material'[[outside_layer_roof]]$'solar_absorptance' = abs_roof
+  # add air conditioning objects
+  if (cond == 'hvac') {
+    model$'ZoneControl:Thermostat' = AddThermostats(names(model$'ZoneList'),
+                                                    fill$'ZoneControl:Thermostat')
+    groups = c('ZoneHVAC:IdealLoadsAirSystem', 'ZoneHVAC:EquipmentList',
+               'ZoneHVAC:EquipmentConnections')
+    model[groups] = mapply(ApplyHVAC, c('hvac', 'equip', 'equip_conn'), fill[groups],
+                           MoreArgs = list(names(model$Zone)), SIMPLIFY = FALSE)
+  }
   # add output variables
   model$'Output:Variable' = AddOutputs(outputs, fill$'Output:Variable')
   write_json(model, model_path, pretty = TRUE, auto_unbox = TRUE)
