@@ -406,18 +406,18 @@ TagBoundSurf = function(tag) {
 }
 
 # main function ####
-BuildModel = function(seed_path, nstrs, area, ratio, height, azimuth, shell_wall, abs_wall,
+BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
                       shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
-                      blind, balcony, mirror, model_path, outputs, construction, fill, setup,
-                      geometry, boundary = 'surface', scale = TRUE) {
+                      blind, balcony, mirror, model_path, outputs, construction, fill,
+                      setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
   # seed_path: seed file path
   # area: sum of the long occupancy rooms (living rooms and dormitories) [30 ~ 150]
   # ratio: ratio between the 'y' and the 'x' axis [0.25 ~ 4]
   # height: right foot [2.5 ~ 3.5]
   # azimuth: azimuth angle related to south orientation [0 ~ 360]
   # shell_wall: wall construction materials composition [1 ~ 7]
-  # shell_roof: roof construction materials composition [1 ~ 4]
   # abs_wall: solar absorptance of the walls [0.2 ~ 0.9]
+  # shell_roof: roof construction materials composition [1 ~ 4]
   # abs_roof: solar absorptance of the roof [0.2 ~ 0.9]
   # wwr_liv: window to wall ratio in the living room (weighted average) [0.1 ~ 0.8]
   # wwr_dorm: window to wall ratio in the dormitories (weighted average) [0.1 ~ 0.8]
@@ -427,7 +427,12 @@ BuildModel = function(seed_path, nstrs, area, ratio, height, azimuth, shell_wall
   # blind: if there is a blind on windows [TRUE or FALSE]
   # balcony: balcony's depth [0 ~ 2]
   # mirror: reflection around y-axis [TRUE or FALSE]
-  # output_dir: output directory
+  # model_path: output model path
+  # outputs: energyplus simulation outputs
+    # possible values: 'mean_temp', 'op_temp', 'air_change', 'therm_bal', 'surf_temp'
+  # nstrs: number of storeys
+  # boundary: boundaries conditions
+    # possible values: 'surface' or 'adiabatic'
   # construction, fill, setup and geometry: auxiliar files
   # read seed file
   seed = read_json(seed_path)
