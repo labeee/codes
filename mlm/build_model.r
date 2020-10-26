@@ -462,10 +462,10 @@ TagBoundSurf = function(tag) {
 }
 
 # main function ####
-BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
-                      shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
-                      blind, balcony, mirror, cond, model_path, outputs, construction, fill,
-                      setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
+# BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
+#                       shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
+#                       blind, balcony, mirror, cond, model_path, outputs, construction, fill,
+#                       setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
   # seed_path: seed file path
   # area: sum of the long occupancy rooms (living rooms and dormitories) [30 ~ 150]
   # ratio: ratio between the 'y' and the 'x' axis [0.25 ~ 4]
@@ -490,6 +490,35 @@ BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_w
   # boundary: boundaries conditions
     # possible values: 'surface' or 'adiabatic'
   # construction, fill, setup and geometry: auxiliar files
+  
+  seed_path = './mlm/seed1c1.json'
+  area = 60
+  ratio = 1
+  height = 3
+  azimuth = 0
+  shell_wall = 'concreto_10cm'
+  abs_wall = 0.5
+  shell_roof = 'fibrocimento_concreto'
+  abs_roof = 0.5
+  wwr_liv = 0.2
+  wwr_dorm = 0.2
+  u_window = 5.7
+  shgc = 0.87
+  open_factor = 0.45
+  blind = FALSE
+  balcony = 0
+  mirror = FALSE
+  cond = 'afn'
+  model_path = '~/rolante/test/test.epJSON'
+  outputs = 'op_temp'
+  construction = read_json('./mlm/construction.json')
+  fill = read_json('./mlm/fill.json')
+  setup = read_json('./mlm/setup.json')
+  geometry = read_json('./mlm/geometry.json')
+  nstrs = 1
+  boundary = 'surface'
+  scale = TRUE
+  
   # read seed file
   seed = read_json(seed_path)
   # scale seed
