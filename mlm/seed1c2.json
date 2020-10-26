@@ -1313,6 +1313,7 @@
     "bwc1_window4": {
       "building_surface_name": "bwc1_wall4_ext",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,
@@ -1354,6 +1355,7 @@
     "bwc2_window4": {
       "building_surface_name": "bwc2_wall4_int",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,
@@ -1416,6 +1418,7 @@
     "dorm1_window4": {
       "building_surface_name": "dorm1_wall4_ext",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,
@@ -1457,6 +1460,7 @@
     "dorm2_window1": {
       "building_surface_name": "dorm2_wall1_ext",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,
@@ -1540,6 +1544,7 @@
     "liv_window11": {
       "building_surface_name": "liv_wall12_balc",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,
@@ -1560,6 +1565,7 @@
     "liv_window12": {
       "building_surface_name": "liv_wall13_ext",
       "construction_name": "simple_window",
+      "frame_and_divider_name": "framedivider",
       "idf_max_extensible_fields": 0,
       "idf_max_fields": 21,
       "number_of_vertices": 4,

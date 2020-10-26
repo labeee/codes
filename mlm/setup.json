@@ -793,6 +793,36 @@
       "slat_width": 0.05
     }
   },
+  "WindowProperty:FrameAndDivider": {
+    "framedivider": {
+      "divider_conductance": 0,
+      "divider_inside_projection": 0,
+      "divider_outside_projection": 0,
+      "divider_solar_absorptance": 0,
+      "divider_thermal_hemispherical_emissivity": 0.9,
+      "divider_visible_absorptance": 0,
+      "divider_width": 0,
+      "frame_conductance": 56,
+      "frame_inside_projection": 0,
+      "frame_outside_projection": 0,
+      "frame_solar_absorptance": 0.5,
+      "frame_thermal_hemispherical_emissivity": 0.9,
+      "frame_visible_absorptance": 0.5,
+      "frame_width": 0.05,
+      "idf_max_extensible_fields": 0,
+      "idf_max_fields": 25,
+      "idf_order": 92,
+      "inside_reveal_depth": 0,
+      "inside_reveal_solar_absorptance": 0.5,
+      "inside_sill_depth": 0,
+      "inside_sill_solar_absorptance": 0.5,
+      "number_of_horizontal_dividers": 0,
+      "number_of_vertical_dividers": 0,
+      "outside_reveal_solar_absorptance": 0.4,
+      "ratio_of_divider_edge_glass_conductance_to_center_of_glass_conductance": 1,
+      "ratio_of_frame_edge_glass_conductance_to_center_of_glass_conductance": 1
+    }
+  },
   "Site:GroundDomain:Slab": {
     "ground_domain": {
       "aspect_ratio": 1,

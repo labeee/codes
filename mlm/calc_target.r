@@ -1,3 +1,10 @@
+# setup environment ####
+library(data.table)
+library(dplyr)
+library(stringr)
+inmet = read.csv('./inmet_list.csv')
+occup = read.csv('./occup.csv')
+
 # base functions ####
 # calculate percentage of hours feeling uncomfortable (ph)
 CalcPH = function (lim, op_temp, occup, mean_temp) {
@@ -22,40 +29,20 @@ CalcPHFT = function(op_temp, occup, mean_temp) {
   phft = 100 - sum(phs)
   return(phft)
 }
-
-# main functions ####
-CalcTarget = function(input_path, storey, weather, occup, inmet) {
+# calculate phft for the whole dwelling
+CalcTarget = function(input_path, weather, occup, inmet) {
   df = read.csv(input_path, nrows = 1)
-  storey = ifelse(storey %in% c(2, 3), 2, 1)
-  cols = df %>%
-    colnames() %>%
-    str_which(paste0('^F', storey, '_(LIV|DORM)'))
+  cols = df %>% colnames() %>% str_which('LIV|DORM')
   df = input_path %>%
     fread(nrows = 52560, select = cols, colClasses = 'numeric') %>%
     as.data.frame()
-  index = match(weather, inmet$arquivo_climatico)
-  zones = df %>%
-    colnames() %>%
-    str_extract('(?<=_)(LIV|DORM)') %>%
-    str_to_lower()
-  target = mapply(CalcPHFT, df, occup[zones], MoreArgs = list(inmet[index, 'tbsm'])) %>%
-    mean()
-  rm(df)
-  gc()
+  index = match(weather, inmet$municipio)
+  zones = df %>% colnames() %>% str_extract('LIV|DORM') %>% str_to_lower()
+  target = mapply(CalcPHFT, df, occup[zones], MoreArgs = list(inmet[index, 'tbsm'])) %>% mean()
   return(target)
 }
-# add targets to sample data frame
-ApplyCalcTarget = function(sample, input_dir, occup, inmet) {
-  input_paths = dir(input_dir, '\\.csv', full.names = TRUE)
-  weathers = sample %>%
-    pull(epw_path) %>%
-    basename() %>%
-    str_remove('\\.epw')
-  targets = mapply(CalcTarget, input_paths, sample$storey,
-                   weathers, MoreArgs = list(occup, inmet))
-  cols = c('seed_path', 'model_path', 'prefix', 'epw_path', 'nstrs')
-  sample = sample %>%
-    select(-all_of(cols)) %>%
-    mutate(sample, targ = targets)
-  return(sample)
-}
+
+# application ####
+files = dir('~/rolante/test/', '\\.csv$', full.names = TRUE)
+results = lapply(files, CalcTarget, 'rio_de_janeiro', occup, inmet)
+names(results) = files
