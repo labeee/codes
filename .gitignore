@@ -18,18 +18,13 @@
 *.shd
 *.idf
 *.epJSON
-
 *.png
 *.swo
 *.swp
-
 *.zip
 *.7z
-
 *.Rhistory
-
 *.epw
-
 __pycache__/
 ref_experiment/
 ref_old/
@@ -42,4 +37,4 @@ RJ/
 RS/
 SC/
 TO/
-
+*.rds
