@@ -7,7 +7,7 @@ library(stringr)
 # airflow network zones
 AddAFNZone = function(tag, fill) AddFields(fill$item, 'zone_name', tag)
 # airflow network surfaces
-AddAFNSurf = function(object, tag, storey, index, fill) {
+AddAFNSurf = function(object, tag, storey, index, fill, cond) {
   fields = c('surface_name', 'leakage_component_name',
              'idf_max_fields', 'ventilation_control_mode')
   # surface_name = surface name with storey prefix
@@ -46,7 +46,8 @@ AddAFNSurf = function(object, tag, storey, index, fill) {
     }
   } else if (cond == 'hvac') { # if it's an air conditioned model
     # avoid doubled afn doors
-    lkg = ifelse(object$surface_type == 'Door', 'door_opening', 'window_opening')
+    lkg = paste0(ifelse(object$surface_type == 'Door', 'door',
+                        ifelse(grepl('bwc', tag), 'bwc', 'window')), '_opening')
     values = append(values, list(lkg, 7, 'NoVent'))
     if (object$surface_type == 'Door') {
       if (!(grepl('dorm|bwc|core', tag) &
@@ -154,9 +155,9 @@ AddZoneList = function(room, tags, fill) {
   return(list)
 }
 # apply AddAFNSurf() for all fenestrations
-ApplyAFNSurfs = function(storey, index, objects, tags) {
+ApplyAFNSurfs = function(storey, index, objects, tags, cond) {
   surfs = mapply(AddAFNSurf, objects, tags, storey, index, SIMPLIFY = FALSE,
-                 MoreArgs = list(fill$'AirflowNetwork:MultiZone:Surface'))
+                 MoreArgs = list(fill$'AirflowNetwork:MultiZone:Surface', cond))
   surfs[sapply(surfs, is.null)] = NULL
   tags = RnmStorey(names(surfs), storey, index)
   tags = paste0('afn_', tags)
@@ -315,7 +316,7 @@ GenBalcSurf = function(face, depth, orient, vertices) {
   return(vertices)
 }
 # generate zones and surfaces for all storeys
-GenStoreys = function(type, group, n, height, boundary) {
+GenStoreys = function(type, group, n, height, boundary, cond) {
   indexes = 1:n
   storeys = LabelStoreys(n)
   if (type == 'zone') {
@@ -327,7 +328,7 @@ GenStoreys = function(type, group, n, height, boundary) {
                    MoreArgs = list(group, names(group), boundary))
   } else if (type == 'afn') {
     group = mapply(ApplyAFNSurfs, storeys, indexes, SIMPLIFY = FALSE,
-                   USE.NAMES = FALSE, MoreArgs = list(group, names(group)))
+                   USE.NAMES = FALSE, MoreArgs = list(group, names(group), cond))
   } else if (type == 'fen') {
     group = mapply(ApplyFens, storeys, indexes, SIMPLIFY = FALSE,
                    USE.NAMES = FALSE, MoreArgs = list(group, names(group)))
@@ -462,10 +463,10 @@ TagBoundSurf = function(tag) {
 }
 
 # main function ####
-# BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
-#                       shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
-#                       blind, balcony, mirror, cond, model_path, outputs, construction, fill,
-#                       setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
+BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
+                      shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
+                      blind, balcony, mirror, cond, model_path, outputs, construction, fill,
+                      setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
   # seed_path: seed file path
   # area: sum of the long occupancy rooms (living rooms and dormitories) [30 ~ 150]
   # ratio: ratio between the 'y' and the 'x' axis [0.25 ~ 4]
@@ -490,36 +491,6 @@ TagBoundSurf = function(tag) {
   # boundary: boundaries conditions
     # possible values: 'surface' or 'adiabatic'
   # construction, fill, setup and geometry: auxiliar files
-  
-  seed_path = './mlm/seed1c1.json'
-  area = 60
-  ratio = 1
-  height = 3
-  azimuth = 0
-  shell_wall = 'concreto_10cm'
-  abs_wall = 0.5
-  shell_roof = 'fibrocimento_concreto'
-  abs_roof = 0.5
-  wwr_liv = 0.2
-  wwr_dorm = 0.2
-  u_window = 5.7
-  shgc = 0.87
-  open_factor = 0.45
-  blind = FALSE
-  balcony = 0
-  mirror = FALSE
-  cond = 'afn'
-  model_path = '~/rolante/test/test.epJSON'
-  outputs = 'op_temp'
-  construction = read_json('./mlm/construction.json')
-  fill = read_json('./mlm/fill.json')
-  setup = read_json('./mlm/setup.json')
-  geometry = read_json('./mlm/geometry.json')
-  nstrs = 1
-  boundary = 'surface'
-  scale = TRUE
-  
-  # read seed file
   seed = read_json(seed_path)
   # scale seed
   if (scale) {
@@ -551,7 +522,7 @@ TagBoundSurf = function(tag) {
   items = groups
   items[4] = 'AirflowNetwork:MultiZone:Surface'
   types = c('zone', 'surf', 'fen', 'afn')
-  model[items] = mapply(GenStoreys, types, seed[groups], nstrs, height, boundary)
+  model[items] = mapply(GenStoreys, types, seed[groups], nstrs, height, boundary, cond)
   # add airflow network zones
   model$'AirflowNetwork:MultiZone:Zone' = lapply(names(model$'Zone'), AddAFNZone,
                                                  fill$'AirflowNetwork:MultiZone:Zone')
