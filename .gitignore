@@ -1,6 +1,5 @@
 *.audit
 *.bnd
-*.csv
 *.dbg
 *.dxf
 *.eio
