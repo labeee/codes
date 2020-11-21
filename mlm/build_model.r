@@ -1,8 +1,3 @@
-library(dplyr)
-library(jsonlite)
-library(purrr)
-library(stringr)
-
 # base functions ####
 # airflow network zones
 AddAFNZone = function(tag, fill) AddFields(fill$item, 'zone_name', tag)
@@ -30,7 +25,8 @@ AddAFNSurf = function(object, tag, storey, index, fill, cond) {
     } else if (object$surface_type == 'Door') { # if fenestration is a door
       # leakage_component_name = door_opening
       values = append(values, list('door_opening', 7))
-      if (grepl('bwc|core', tag)) { # if it's a bwc door
+      if (grepl('bwc|core', tag) |
+          is.null(object$outside_boundary_condition_object)) { # if it's an entrance or bwc door
         # vetilation_control_mode = NoVent
         values = append(values, 'NoVent')
       } else if (grepl('dorm', tag) &  # if it's a door between living room and dormitory
@@ -49,7 +45,8 @@ AddAFNSurf = function(object, tag, storey, index, fill, cond) {
     lkg = paste0(ifelse(object$surface_type == 'Door', 'door',
                         ifelse(grepl('bwc', tag), 'bwc', 'window')), '_opening')
     values = append(values, list(lkg, 7, 'NoVent'))
-    if (object$surface_type == 'Door') {
+    if (object$surface_type == 'Door' &
+        !is.null(object$outside_boundary_condition_object)) {
       if (!(grepl('dorm|bwc|core', tag) &
             !grepl('bwc|core', object$outside_boundary_condition_object))) {
         values = NULL
@@ -465,8 +462,8 @@ TagBoundSurf = function(tag) {
 # main function ####
 BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
                       shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor,
-                      blind, balcony, mirror, cond, model_path, outputs, construction, fill,
-                      setup, geometry, nstrs = 3, boundary = 'surface', scale = TRUE) {
+                      blind, balcony, mirror, cond, model_path, outputs, nstrs, construction,
+                      fill, setup, geometry, boundary = 'surface', scale = TRUE) {
   # seed_path: seed file path
   # area: sum of the long occupancy rooms (living rooms and dormitories) [30 ~ 150]
   # ratio: ratio between the 'y' and the 'x' axis [0.25 ~ 4]
@@ -495,7 +492,7 @@ BuildModel = function(seed_path, area, ratio, height, azimuth, shell_wall, abs_w
   # scale seed
   if (scale) {
     # define seed characteristics
-    index = seed_path %>% str_extract('(?<=seed)[0-9]') %>% as.numeric()
+    index = seed_path %>% str_extract('(?<=seed_.)[0-9]') %>% as.numeric()
     adjust = 1/geometry[[index]]$ratio
     ratio = ratio*adjust
     area_seed = geometry[[index]]$area %>% flatten_dbl() %>% sum()
