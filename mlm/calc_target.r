@@ -42,8 +42,9 @@ CalcTargets = function(sample, occup, typo, inmet, unit = 'kwh', timestep = 6) {
                           colnames(dfs[[conds['hvac']]]))
   cgtt = mapply(function(x, y, z) sum(colSums(z[!x, y])), phft, cols,
                 MoreArgs = list(dfs[[conds['hvac']]]))
-  cgtt = sum(cgtt)/div/unique(sample$area)
-  phft = mean(mapply(function(x, y) sum(x)/sum(y > 0)*100, phft, occup[rooms]))
+  cgtt = sum(cgtt)/div/unique(sample$area) %>% round(2)
+  phft = mapply(function(x, y) sum(x)/sum(y > 0)*100, phft, occup[rooms]) %>%
+    mean() %>% round(2)
   cols = c('seed_path', 'case', 'prefix', 'model_path',
            'output_dir', 'epw_path', 'cond', 'outputs')
   sample = sample %>% select(-all_of(cols)) %>% unique()

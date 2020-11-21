@@ -20,7 +20,7 @@ invisible({
   epws_dir = '~/rolante/weather/'
   output_dir = '~/rolante/labeee/output/'
   result_dir = '~/rolante/labeee/result/'
-  typo = 'multi'
+  typo = 'uni'
   cores_left = 0
   
   # functions ####
@@ -49,7 +49,6 @@ invisible({
   # read and tidy up sample
   saltelli_path = paste0('saltelli_sample_', typo, '.csv')
   sample = TidySample(saltelli_path, seeds_dir, models_dir, epws_dir, typo, inmet)
-  sample = sample[1:4, ]
   # define simulations for each case
   sample = sample %>%
     mutate(case = prefix, .before = prefix) %>%

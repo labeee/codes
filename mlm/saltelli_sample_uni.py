@@ -32,5 +32,5 @@ bounds = [[50, 150], [0.5, 2], [2.5, 3.5], [0, 360], [1, 7],
           [0.22, 0.87], [0.4, 0.9], [0, 2], [0, 2], [10.83, 28.24]]
 qual_vars = [4, 6, 13, 14]
 output_dir = '/home/rodox/git/labeee/mlm/'
-GenSample(names, bounds, 0.02, qual_vars, 10000, output_dir)
+GenSample(names, bounds, 0.02, qual_vars, 1500, output_dir)
 
