@@ -1,6 +1,6 @@
 invisible({
   # setup environment ####
-  setwd('mlm/')
+  setwd('~/git/labeee/mlm/')
   pkgs = c('data.table', 'dplyr', 'jsonlite', 'reticulate',
            'parallel', 'purrr', 'stringr', 'tibble')
   lapply(pkgs, library, character.only = TRUE)
@@ -15,13 +15,12 @@ invisible({
   setup = read_json('setup.json')
   
   # variables ####
-  saltelli_path = 'saltelli_sample.csv'
   seeds_dir = './'
   models_dir = '~/rolante/labeee/model/'
   epws_dir = '~/rolante/weather/'
   output_dir = '~/rolante/labeee/output/'
   result_dir = '~/rolante/labeee/result/'
-  sample_path = 'sample.csv'
+  typo = 'multi'
   cores_left = 0
   
   # functions ####
@@ -35,7 +34,7 @@ invisible({
     # run simulations
     RunSimSlice(sample, temp_dir)
     # calculate targets and add them to the sample
-    sample = CalcTargets(sample, occup, inmet)
+    sample = CalcTargets(sample, occup, typo, inmet)
     # remove directory with files
     unlink(temp_dir, recursive = TRUE, force = TRUE)
     # write sample file
@@ -43,10 +42,13 @@ invisible({
   }
   
   # main code ####
+  # define number of core
+  cores = detectCores() - cores_left
   # generate sample
-  py_run_file('saltelli_sample.py')
+  py_run_file(paste0('saltelli_sample_', typo, '.py'))
   # read and tidy up sample
-  sample = TidySample(saltelli_path, seeds_dir, models_dir, epws_dir, inmet)
+  saltelli_path = paste0('saltelli_sample_', typo, '.csv')
+  sample = TidySample(saltelli_path, seeds_dir, models_dir, epws_dir, typo, inmet)
   sample = sample[1:4, ]
   # define simulations for each case
   sample = sample %>%
@@ -58,14 +60,21 @@ invisible({
            model_path = 'str_sub<-'(model_path, -7, -8, value = paste0('_', cond)),
            prefix = paste0(prefix, '_', cond))
   # build cases
-  with(sample, mapply(BuildModel, seed_path, area, ratio, height, azimuth, shell_wall,
-                      abs_wall, shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc,
-                      open_factor, blind, balcony, mirror, cond, model_path, outputs,
-                      MoreArgs = list(construction, fill, setup, geometry)))
+  if (typo == 'uni') {
+    nstrs = 1
+    balcony = 0
+  } else {
+    nstrs = 3
+  }
+  with(sample, mcmapply(BuildModel, seed_path, area, ratio, height, azimuth, shell_wall, abs_wall,
+                        shell_roof, abs_roof, wwr_liv, wwr_dorm, u_window, shgc, open_factor, blind,
+                        balcony, mirror, cond, model_path, outputs, nstrs, mc.cores = cores,
+                        MoreArgs = list(construction, fill, setup, geometry[[typo]])))
   # run simulations in slices
   sample = split(sample, sample$case)
-  mclapply(sample, ProcessNBRSims, mc.cores = detectCores() - cores_left)
+  mclapply(sample, ProcessNBRSims, mc.cores = cores)
   # pile up results
+  sample_path = paste0('sample_', typo, '.csv')
   WriteSample('.*\\.csv', sample_path, result_dir)
   lapply(c('summary', 'description'), HandleSlices, result_dir)
   # join samples
